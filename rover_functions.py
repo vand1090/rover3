@@ -1,6 +1,7 @@
 import serial
 import time
-ser = serial.Serial('/dev/ttyACM0', 9600)
+#ser = serial.Serial('/dev/ttyACM0', 9600)
+import tkinter as tk
 
 #use as a pause between commands for debugging.
 #can also be used for drive mode 2
@@ -16,8 +17,9 @@ def kill():
 
     #Return to main menu
     return DM
-    
 
+def dm1():
+    print("drive mode 1")
 #Reading GPS position. do not use for now
 #===================================================================
 def readPos():
