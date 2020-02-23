@@ -19,7 +19,13 @@ def kill():
     return DM
 
 def dm1():
-    print("drive mode 1")
+    print("Drive Mode 1")
+    
+def dm2():
+    print("Drive Mode 2")
+    
+def dm3():
+    print("Drive Mode 3")
 #Reading GPS position. do not use for now
 #===================================================================
 def readPos():
