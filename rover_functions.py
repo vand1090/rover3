@@ -2,7 +2,24 @@ import serial
 import time
 ser = serial.Serial('/dev/ttyACM0', 9600)
 
+#use as a pause between commands for debugging.
+#can also be used for drive mode 2
+def standby():
+    time.sleep(5)
+    #return True
 
+#This will be the software kill
+def kill():
+    DM = 0
+    #stop all movement
+    #insert code
+
+    #Return to main menu
+    return DM
+    
+
+#Reading GPS position. do not use for now
+#===================================================================
 def readPos():
     try:
         state = ser.readline()
@@ -40,6 +57,4 @@ def parsePos(state_conv):
         longitude = posType[4]
         long_dir = posType[5]
         return [time_ping, latitude, lat_dir, longitude, long_dir]
-def standby():
-    time.sleep(5)
-    #return True
+#===================================================================

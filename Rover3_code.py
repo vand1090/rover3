@@ -1,9 +1,9 @@
-from gpiozero import *
-import cv2
+from gpiozero import * #uncomment this on the pi
+import cv2 #uncomment this on the pi
 from rover_functions import *
 import time
 import serial
-from picamera import PiCamera
+from picamera import PiCamera #uncomment this on the pi
 #==========================================================
 # Rover 3 Control Code Module A - Raspberry Pi
 # Author: Alexander Vanden Bussche
@@ -11,14 +11,18 @@ from picamera import PiCamera
 #==========================================================
 # Variables & Constants
 #Drive Modes
-#DM0 is waiting for input about which drive mode to be in
-#DM1 is 1:1 control - WASD
-#DM2 is waypoint nav
-#DM3 is 7s delay (asteroid mode)
-while(DM0):
-    #t-
-    ake inputs
+#DM = 0 is waiting for input about which drive mode to be in
+#DM = 1 is 1:1 control - WASD or controller or GUI
+#DM = 2 is 7s delay with manual control
+#DM = 3 is auto mode
+#DM = 0 selected as default
 
+
+while(DM==0):
+    #Display options
+    print("Welcome to Rover 3 /n")
+    
+    
 
 
 drive = True
