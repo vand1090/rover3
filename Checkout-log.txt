@@ -2,5 +2,6 @@ The purpose of this log is to note when you're actively editing something.
 This will help keep us from overwriting each other's work
 
 Date		Name	File			Checked in?
-2/23/2020	Alex	Rover3_code		no
-2/23/2020	Alex	Rover_functions	no		
+2/23/2020	Alex	Rover3_code		Y
+2/23/2020	Alex	Rover_functions		Y	
+2/23/2020	Alex	guitest			Y		
