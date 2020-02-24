@@ -60,6 +60,7 @@ def dm3():
 #Autonomous mode functions
 def findMe():
     #this function finds the rover in the IPS system
+    #Reads via spi bus
 
 def checkObs():
     rangeMin = 30; #Rover allowed no closer than this
