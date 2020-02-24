@@ -43,6 +43,14 @@ def dm2():
     
 def dm3():
     print("Drive Mode 3")
+    goal_loc = 1;
+    drive = True
+    while(drive):
+        loc = findMe()
+        setHeading(loc, goal_loc)
+        if(checkObs()):
+            avoidOvs()
+    
     #Drive mode 3 is automatic mode
     #auto mode
     #read in instructions
@@ -54,10 +62,19 @@ def findMe():
     #this function finds the rover in the IPS system
 
 def checkObs():
-    #Use this function to check 
+    rangeMin = 30; #Rover allowed no closer than this
+    rangeRead = 10; #relace this with LIDAR check
+    #If there's an obstruction within range, return true
+    if (rangeRead <= rangeMin):
+        return True
+    else:
+        return False
 
 def avoidObs():
     #this function tries to move the rover arund an obstacle
+    
+def setHeading(loc, goal):
+    
 #==========================================================
 #video stream class
 class MyVideoCapture:
