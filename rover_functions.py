@@ -30,7 +30,7 @@ def kill():
     exit()
     
 def startCam():
-    camera.start_preview(fullscreen=False,window=(100,300,300,400))
+    camera.start_preview(fullscreen=False,window=(100,50,300,400))
     
 def endCam():
     camera.stop_preview()
