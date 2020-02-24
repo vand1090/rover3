@@ -2,11 +2,15 @@ import serial
 import time
 #ser = serial.Serial('/dev/ttyACM0', 9600)
 import tkinter as tk
+import cv2
+from picamera import PiCamera
 #==========================================================
 # Rover 3 Control Code Functions - Raspberry Pi
 # Author: Alexander Vanden Bussche
 # Spring 2020
 #==========================================================
+#constants
+camera = PiCamera()
 
 #==========================================================
 #Functions
@@ -25,7 +29,11 @@ def kill():
     #exit the program
     exit()
     
-
+def startCam():
+    camera.start_preview(fullscreen=False,window=(100,300,300,400))
+    
+def endCam():
+    camera.stop_preview()
 def dm1():
     #Drive mode 1 is manual control (WASD/Controller)
     #Start control GUI
@@ -38,18 +46,22 @@ def dm2():
     print("Drive Mode 2")
     #start control GUI
     #read inputs
-    standby()
+    #standby()
     #make a function that sends inputs to arduino
     
 def dm3():
     print("Drive Mode 3")
-    goal_loc = 1;
+    goal_loc = 1
+    count = 1
     drive = True
     while(drive):
         loc = findMe()
         setHeading(loc, goal_loc)
         if(checkObs()):
-            avoidOvs()
+            avoidObs()
+        count = count+1
+        if(count == 10):
+            drive=False
     
     #Drive mode 3 is automatic mode
     #auto mode
@@ -61,6 +73,7 @@ def dm3():
 def findMe():
     #this function finds the rover in the IPS system
     #Reads via spi bus
+    print("Searching")
 
 def checkObs():
     rangeMin = 30; #Rover allowed no closer than this
@@ -73,36 +86,38 @@ def checkObs():
 
 def avoidObs():
     #this function tries to move the rover arund an obstacle
+    print("avoiding obstacles")
     
 def setHeading(loc, goal):
+    print("set heading")
     
 #==========================================================
 #video stream class
-class MyVideoCapture:
-    #on inititalize:
-    def __init__(self, video_source=0):
-        #open video source
-        self.vid = cv2.VideoCapture('videotestsrc ! video/x-raw,framerate=14/1 ! videoscale ! videoconvert ! appsink', cv2.CAP_GSTREAMER)
-        if not self.vid.isOpened():
-            raise ValueError("Unable to open video source ", video_source)
-        self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
-
-     #makes sure the stream ends when you close the object   
-    def __del__(self):
-        if self.vid.isOpened():
-            seld.vid.release()
-        self.window.mainloop()
-        
-    def get_frame(self):
-        if self.vid.isOpened():
-            ret, frame = self.vid.read()
-            if ret:
-                return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            else:
-                return(ret, None)
-        else:
-            return (ret, None)
+# class MyVideoCapture:
+#     #on inititalize:
+#     def __init__(self, video_source=0):
+#         #open video source
+#         self.vid = cv2.VideoCapture(video_source)
+#         if not self.vid.isOpened():
+#             raise ValueError("Unable to open video source ", video_source)
+#         self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
+#         self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
+# 
+#      #makes sure the stream ends when you close the object   
+#     def __del__(self):
+#         if self.vid.isOpened():
+#             seld.vid.release()
+#         self.window.mainloop()
+#         
+#     def get_frame(self):
+#         if self.vid.isOpened():
+#             ret, frame = self.vid.read()
+#             if ret:
+#                 return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+#             else:
+#                 return(ret, None)
+#         else:
+#             return (ret, None)
 
 #===========================================================================                
 #GUI class
@@ -115,12 +130,20 @@ class gui(tk.Frame):
         #alternative is to change the existing GUI
         #Not sure which option is faster
     def dm1control(self):
+        endCam()
+        startCam()
         dm1()
+        
     def dm2control(self):
+        endCam()
+        startCam()
         dm2()
     def dm3control(self):
+        endCam()
+        startCam()
         dm3()
     def swKill(self):
+        endCam()
         kill()
     #these are the button objects
     def exitBtn(self):
@@ -140,7 +163,7 @@ class gui(tk.Frame):
     #initialize the frame with those button objects
     def __init__(self, master=None, video_source = 0):
         tk.Frame.__init__(self, master)
-        self.vid = MyVideoCapture(video_source)
+        #self.vid = MyVideoCapture(video_source)
         self.grid()
         self.exitBtn()
         self.dmOneBtn()

@@ -11,9 +11,10 @@ import tkinter as tk
 # Spring 2020
 #==========================================================
 
+
 #starts gui window using the class define above
 window = tk.Tk()
-window.geometry('350x200')
+window.geometry('350x200+300+300')
 app = fn.gui(master=window)
 app.master.title('Rover Interface')
 app.mainloop()
