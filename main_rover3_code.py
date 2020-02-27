@@ -11,14 +11,13 @@ import tkinter as tk
 # Spring 2020
 #==========================================================
 
-
-#starts gui window using the class define above
+#while(fn.restart):
+    #starts gui window using the class define above
 window = tk.Tk()
 window.geometry('350x200+400+100')
 app = fn.gui(master=window)
 app.master.title('Rover Interface')
 app.mainloop()
-
 
 #Test code
 #testing variables
@@ -51,4 +50,3 @@ count = 0
     #count if used for shortening the while loop during debugging
     #count = count+1
     #output controls
-

@@ -4,6 +4,7 @@ import time
 import tkinter as tk
 import cv2
 from picamera import PiCamera
+#from keybinder import KeyBinder
 #==========================================================
 # Rover 3 Control Code Functions - Raspberry Pi
 # Author: Alexander Vanden Bussche
@@ -12,6 +13,7 @@ from picamera import PiCamera
 #constants
 camera = PiCamera()
 
+restart = True
 #==========================================================
 #Functions
 
@@ -28,19 +30,22 @@ def kill():
     #stop all movement
     #exit the program
     exit()
-    
+
 def startCam():
     camera.start_preview(fullscreen=False,window=(100,50,300,400))
-    
+
 def endCam():
     camera.stop_preview()
+
 def dm1():
     #Drive mode 1 is manual control (WASD/Controller)
     #Start control GUI
     #read inputs
     #make a function that sends inputs to arduino
     print("Drive Mode 1")
-    
+
+
+
 def dm2():
     #Drive mode 2 is manual control (WASD/Controller) with delay
     print("Drive Mode 2")
@@ -48,7 +53,7 @@ def dm2():
     #read inputs
     #standby()
     #make a function that sends inputs to arduino
-    
+
 def dm3():
     print("Drive Mode 3")
     goal_loc = 1
@@ -62,7 +67,7 @@ def dm3():
         count = count+1
         if(count == 10):
             drive=False
-    
+
     #Drive mode 3 is automatic mode
     #auto mode
     #read in instructions
@@ -87,11 +92,11 @@ def checkObs():
 def avoidObs():
     #this function tries to move the rover arund an obstacle
     print("avoiding obstacles")
-    
+
 def setHeading(loc, goal):
     print("set heading")
- 
-#===========================================================================                
+
+#===========================================================================
 #GUI class
 class gui(tk.Frame):
     #Define control state commands
@@ -103,8 +108,11 @@ class gui(tk.Frame):
     def dm1control(self):
         endCam()
         startCam()
+        #newWindow = tk.Toplevel(self)
+        #dm1_quitBtn = tk.Button(newWindow, text='Quit', command = newWindow.destroy)
+        #dm1_quitBtn.pack()
         dm1()
-        
+
     def dm2control(self):
         endCam()
         startCam()
@@ -120,6 +128,9 @@ class gui(tk.Frame):
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
         self.QUIT.grid(column = 1, row = 1)
+    def rstBtn(self):
+        self.QUIT = tk.Button(self, text='Restart', command = self.resetSwitch)
+        self.QUIT.grid(column = 2, row = 1)
     def dmOneBtn(self):
         self.btn1 = tk.Button(self, text = 'Drive Mode 1', command = self.dm1control)
         self.btn1.grid(column = 1, row = 2)
@@ -131,40 +142,44 @@ class gui(tk.Frame):
         self.btn3.grid(column = 1, row = 4)
     def killSwitch(self):
         self.killBtn = tk.Button(self, text = 'Kill Rover Action', command = self.swKill)
-
+    def resetSwitch(self):
+        endCam()
+        self.destroy
+        self.__init__
     def keyBind(self):
-        self.label = tk.Label(self, text="last key pressed:  ", width=20)
-        self.label.bind("<w>", self.on_wasd)
-        self.label.bind("<a>", self.on_wasd)
-        self.label.bind("<s>", self.on_wasd)
-        self.label.bind("<d>", self.on_wasd)
-
+        self.label = tk.Label(self, text="Key Press:  ", width=20)
+        self.label.bind("<w>", self.on_w)
+        self.label.bind("<a>", self.on_a)
+        self.label.bind("<s>", self.on_s)
+        self.label.bind("<d>", self.on_d)
         # give keyboard focus to the label by default, and whenever
         # the user clicks on it
         self.label.focus_set()
         self.label.bind("<1>", lambda event: self.label.focus_set())
+        self.label.grid(column = 1, row = 5)
 
-    def on_wasd(self, event):
-        self.label.configure(text="last key pressed: " + event.keysym);
+    def on_w(self, event):
+        self.label.configure(text="Forward");
+    def on_a(self, event):
+        self.label.configure(text="Left");
+    def on_s(self, event):
+        self.label.configure(text="Backward");
+    def on_d(self, event):
+        self.label.configure(text="Right");
+    def on_wasd(newWindow, event):
+        newWindow.label.configure(text="last key pressed: " + event.keysym);
     #initialize the frame with those button objects
-    def __init__(self, master=None, video_source = 0):
+    def __init__(self, master=None, drive_mode = 0):
         tk.Frame.__init__(self, master)
         #self.vid = MyVideoCapture(video_source)
         self.grid()
         self.exitBtn()
+        self.rstBtn()
         self.dmOneBtn()
         self.dmTwoBtn()
         self.dmThreeBtn()
         self.keyBind()
-#===============================================================================
-#keybind class
-class keyClass(tk.Frame):
-    def __init__(self, parent):
-        tk.Frame.__init__(self, parent, width=400,  height=400)
 
-        
-        
-        
 #Reading GPS position. do not use for now
 #===================================================================
 def readPos():
