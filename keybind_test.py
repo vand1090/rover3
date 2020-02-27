@@ -1,8 +1,8 @@
 import tkinter as tk
 
-os.system('xset r off')
+#os.system('xset r off')
 
-class Example(tk.Frame):
+class keyClass(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, width=400,  height=400)
 
