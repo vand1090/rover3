@@ -19,7 +19,7 @@ spi = spidev.SpiDev()
 spi.open(bus, device)
 
 # Set SPI speed and mode
-spi.max_speed_hz = 500000
+spi.max_speed_hz = 50000
 spi.mode = 0
 
 # Clear display
