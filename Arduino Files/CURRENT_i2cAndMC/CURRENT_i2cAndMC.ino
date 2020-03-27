@@ -144,7 +144,7 @@ void receiveData(int byteCount){
     //5 turns right
     //6 stops rover
 
-    switch commandReceived{
+    switch (commandReceived){
       //LED stuff for testing
       case 1:
         if(state==0){
