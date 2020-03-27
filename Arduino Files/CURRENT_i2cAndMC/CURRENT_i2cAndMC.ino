@@ -69,7 +69,16 @@ void setup() {
 void loop() {
   delay(1000);
 }
+void stopMotion(){
+  //set all motors to off
+  digitalWrite(FOR_EN_RIGHT, LOW);
+  digitalWrite(FOR_EN_LEFT, LOW);
+  digitalWrite(REV_EN_LEFT, LOW);
+  digitalWrite(REV_EN_RIGHT, LOW);
 
+  //set speed value from 0 to 255 based on input
+
+}
 void driveForward(){
   //make sure reverse pins are disabled
   digitalWrite(REV_EN_LEFT, LOW);
@@ -126,7 +135,13 @@ void receiveData(int byteCount){
     n = Wire.read();
     Serial.print("Data received: ");
     Serial.println(n);
-
+    
+    //1 flips LED state
+    //2 drives motor forward
+    //3 drives motor backward
+    //4 turns left
+    //5 turns right
+    //6 stops rover
     if(n==1){
       if(state==0){
         digitalWrite(13, HIGH);
