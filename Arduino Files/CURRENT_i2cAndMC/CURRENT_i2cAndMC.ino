@@ -13,6 +13,7 @@ SFEVL53L1X distanceSensor;
 int n = 0;
 int state = 0;
 int distance = 0;
+int commandReceived = 0;
 
 
 //Motor Outputs
@@ -132,9 +133,9 @@ void turnRight(){
 }
 void receiveData(int byteCount){
   while(Wire.available()){
-    n = Wire.read();
+    commandReceived = Wire.read();
     Serial.print("Data received: ");
-    Serial.println(n);
+    Serial.println(commandReceived);
     
     //1 flips LED state
     //2 drives motor forward
@@ -142,20 +143,46 @@ void receiveData(int byteCount){
     //4 turns left
     //5 turns right
     //6 stops rover
+
+    switch commandReceived{
+      //LED stuff for testing
+      case 1:
+        if(state==0){
+          digitalWrite(13, HIGH);
+          state=1;
+        }
+        else{
+          digitalWrite(13, LOW);
+          state=0;
+        }
+        break;
+      case 2:   //drive forward state
+        driveForward();
+        break;
+      case 3:   //drive back state
+        driveBackward();
+        break;
+      case 4:   //turn left
+        turnLeft();
+        break;
+      case 5:   //turn Right
+        turnRight();
+        break;
+      case 6:   //stop
+        stopMotion();
+        break;
+      default:
+        stopMotion(); 
+      break;
+    }
+        
     if(n==1){
-      if(state==0){
-        digitalWrite(13, HIGH);
-        state=1;
-      }
-      else{
-        digitalWrite(13, LOW);
-        state=0;
-      }
+      
     }
   }
 }
 void sendData(){
-  Wire.write(state);
+  Wire.write(commandReceived);
 }
 void sendDistance(){
   distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
