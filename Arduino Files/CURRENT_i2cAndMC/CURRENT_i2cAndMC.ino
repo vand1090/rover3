@@ -67,9 +67,59 @@ void setup() {
 }
 
 void loop() {
-  
   delay(1000);
+}
 
+void driveForward(){
+  //make sure reverse pins are disabled
+  digitalWrite(REV_EN_LEFT, LOW);
+  digitalWrite(REV_EN_RIGHT, LOW);
+  //enable forward drive 
+  digitalWrite(FOR_EN_RIGHT, HIGH);
+  digitalWrite(FOR_EN_LEFT, HIGH);
+
+  //set speed value from 0 to 255 based on input
+
+}
+void driveBackward(){
+  //make sure forward pins are disabled
+  digitalWrite(FOR_EN_RIGHT, LOW);
+  digitalWrite(FOR_EN_LEFT, LOW);
+
+  //enable reverse pins
+  digitalWrite(REV_EN_RIGHT, HIGH);
+  digitalWrite(REV_EN_LEFT, HIGH);
+
+  //set speed value from 0 to 255 based on input   
+}
+
+void turnLeft(){
+  //make all pins low first, to avoid errors
+  digitalWrite(FOR_EN_RIGHT, LOW);
+  digitalWrite(FOR_EN_LEFT, LOW);
+  digitalWrite(REV_EN_LEFT, LOW);
+  digitalWrite(REV_EN_RIGHT, LOW);
+
+  //set left pins to reverse
+  digitalWrite(REV_EN_LEFT, HIGH);
+  //set right pins to forward
+  digitalWrite(FOR_EN_RIGHT, HIGH);  
+
+  //set speeds froom 0 to 255 based on input
+}
+void turnRight(){
+  //make all pins low first, to avoid errors
+  digitalWrite(FOR_EN_RIGHT, LOW);
+  digitalWrite(FOR_EN_LEFT, LOW);
+  digitalWrite(REV_EN_LEFT, LOW);
+  digitalWrite(REV_EN_RIGHT, LOW);
+
+  //set right pins to reverse
+  digitalWrite(REV_EN_RIGHT, HIGH);
+  //set right pins to forward
+  digitalWrite(FOR_EN_LEFT, HIGH);  
+
+  //set speeds froom 0 to 255 based on input
 }
 void receiveData(int byteCount){
   while(Wire.available()){
