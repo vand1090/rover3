@@ -5,5 +5,5 @@ Date		Name	File			Checked in?
 2/23/2020	Alex	Rover3_code		Y
 2/23/2020	Alex	Rover_functions		Y	
 2/23/2020	Alex	guitest			Y	
-3/29/2020   Kelly   arduino_motorControllers 
-3/29/2020   Kelly   rover_functions
+3/29/2020   Kelly   arduino_motorControllers Y
+3/29/2020   Kelly   rover_functions Y
