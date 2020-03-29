@@ -47,6 +47,10 @@ def dm1():
     #make a function that sends inputs to arduino
     
     bus = smbus.SMBus(1)
+    while(drive==0):
+        bus.write_byte(address,6)
+        time.sleep(0.5)
+
     while(drive != 0):
 
         if (drive == "forward"):
@@ -64,7 +68,8 @@ def dm1():
         else: #brake
             bus.write_byte(address,6)
             time.sleep(0.5)
-        time.sleep(0.5) #wait for 0.5 seconds before checking 
+    
+    time.sleep(0.1) #wait for 0.5 seconds before checking 
         # if a key is pressed
 
 def dm2():
