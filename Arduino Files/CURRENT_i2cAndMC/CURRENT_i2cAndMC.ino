@@ -133,7 +133,7 @@ void turnRight(){
 }
 void receiveData(int byteCount){
   while(Wire.available()){
-    commandReceived = Wire.read();
+    commandReceived = Wire.read()-'0';//to convert char to int 
     Serial.print("Data received: ");
     Serial.println(commandReceived);
     

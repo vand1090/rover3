@@ -4,6 +4,8 @@ import time
 import tkinter as tk
 import cv2
 from picamera import PiCamera
+import smbus
+
 #from keybinder import KeyBinder
 #==========================================================
 # Rover 3 Control Code Functions - Raspberry Pi
@@ -39,13 +41,31 @@ def endCam():
 
 def dm1():
     #Drive mode 1 is manual control (WASD/Controller)
+    print("Drive Mode 1")
     #Start control GUI
     #read inputs
     #make a function that sends inputs to arduino
-    print("Drive Mode 1")
-    # Test
+    
+    bus = smbus.SMBus(1)
+    while(drive != 0):
 
-
+        if (drive == "forward"):
+            bus.write_byte(address,2)
+            time.sleep(0.5)
+        else if (drive == "backward"):
+        bus.write_byte(address,3)
+            time.sleep(0.5)
+        else if (drive == "right"):
+            bus.write_byte(address,4)
+            time.sleep(0.5)
+        else if (drive == "left"):
+            bus.write_byte(address,5)
+            time.sleep(0.5)
+        else: #brake
+            bus.write_byte(address,6)
+            time.sleep(0.5)
+        time.sleep(0.5) #wait for 0.5 seconds before checking 
+        # if a key is pressed
 
 def dm2():
     #Drive mode 2 is manual control (WASD/Controller) with delay
@@ -158,15 +178,23 @@ class gui(tk.Frame):
         self.label.focus_set()
         self.label.bind("<1>", lambda event: self.label.focus_set())
         self.label.grid(column = 1, row = 5)
+    # Set drive = 0 when a key is not pressed
+
+    # while loop for key is not pressed?
+    drive = 0;
 
     def on_w(self, event):
         self.label.configure(text="Forward");
+        drive = "forward"
     def on_a(self, event):
         self.label.configure(text="Left");
+        drive = "left"
     def on_s(self, event):
         self.label.configure(text="Backward");
+        drive = "backward"
     def on_d(self, event):
         self.label.configure(text="Right");
+        drive = "right"
     def on_wasd(newWindow, event):
         newWindow.label.configure(text="last key pressed: " + event.keysym);
     #initialize the frame with those button objects
