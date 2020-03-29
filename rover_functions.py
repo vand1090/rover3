@@ -82,7 +82,7 @@ def findMe():
 
 def checkObs():
     rangeMin = 30; #Rover allowed no closer than this
-    rangeRead = 10; #relace this with LIDAR check
+    rangeRead = 10; #replace this with LIDAR check
     #If there's an obstruction within range, return true
     if (rangeRead <= rangeMin):
         return True
