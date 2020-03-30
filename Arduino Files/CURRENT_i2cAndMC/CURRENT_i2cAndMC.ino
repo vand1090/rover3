@@ -167,22 +167,22 @@ void receiveData(int byteCount){
         }
         break;
       case 2:   //drive forward state
-        driveForward();
+        //driveForward();
         break;
       case 3:   //drive back state
-        driveBackward();
+        //driveBackward();
         break;
       case 4:   //turn left
-        turnLeft();
+        //turnLeft();
         break;
       case 5:   //turn Right
         turnRight();
         break;
       case 6:   //stop
-        stopMotion();
+        //stopMotion();
         break;
       default:
-        stopMotion(); 
+        //stopMotion(); 
       break;
     }
         

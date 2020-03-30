@@ -20,7 +20,7 @@ camera = PiCamera()
 
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
-#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) 
+#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
 duino_address = 0x04
 
 #==========================================================
@@ -33,6 +33,7 @@ def standby():
     #return True
 def getRange():
    # print('Range: {}mm'.format(tof_sensor.range))
+   time.sleep(1)
 
 def kill():
     #This will be the software kill
@@ -53,31 +54,30 @@ def dm1():
     #Start control GUI
     #read inputs
     #make a function that sends inputs to arduino
-    
+
     bus = smbus.SMBus(1)
     while(drive=="stop"):
         bus.write_byte(duino_address,6)
         time.sleep(0.5)
 
     while(drive != "stop"):
-
         if (drive == "forward"):
             bus.write_byte(duino_address,2)
             time.sleep(0.5)
-        else if (drive == "backward"):
-        bus.write_byte(address,3)
+        elif (drive == "backward"):
+            bus.write_byte(address,3)
             time.sleep(0.5)
-        else if (drive == "right"):
+        elif (drive == "right"):
             bus.write_byte(duino_address,4)
             time.sleep(0.5)
-        else if (drive == "left"):
+        elif (drive == "left"):
             bus.write_byte(duino_address,5)
             time.sleep(0.5)
         else: #brake
             bus.write_byte(duino_address,6)
             time.sleep(0.5)
-    
-    time.sleep(0.1) #wait for 0.5 seconds before checking 
+
+    time.sleep(0.1) #wait for 0.5 seconds before checking
         # if a key is pressed
 
 def dm2():
