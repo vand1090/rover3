@@ -23,7 +23,7 @@ app.mainloop()
 #testing variables
 a =  10
 count = 0
-
+mode = 6
 #gpio setup
 
 #inputs

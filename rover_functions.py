@@ -35,10 +35,16 @@ def standby():
 def getRange():
    # print('Range: {}mm'.format(tof_sensor.range))
    time.sleep(1)
+def driving(mode):
+    bus.write_byte(duino_address,mode)
+    readNum()
+    time.sleep(0.5)
+
 def readNum():
     num = bus.read_byte(duino_address)
     print("RPI Received", num)
     return num
+
 def kill():
     #This will be the software kill
     DM = 0
@@ -58,36 +64,7 @@ def dm1():
     #Start control GUI
     #read inputs
     #make a function that sends inputs to arduino
-
-
-    if(drive==6):
-        bus.write_byte(duino_address,6)
-        time.sleep(0.5)
-
-    while(drive != 6):
-        if (drive == 2):
-            bus.write_byte(duino_address,2)
-            readNum()
-            time.sleep(0.5)
-        elif (drive == 3):
-            bus.write_byte(address,3)
-            readNum()
-            time.sleep(0.5)
-        elif (drive == 4):
-            bus.write_byte(duino_address,4)
-            readNum()
-            time.sleep(0.5)
-        elif (drive == 5):
-            bus.write_byte(duino_address,5)
-            readNum()
-            time.sleep(0.5)
-        else: #brake
-            bus.write_byte(duino_address,6)
-            readNum()
-            time.sleep(0.5)
-
-    time.sleep(0.1) #wait for 0.5 seconds before checking
-        # if a key is pressed
+    driving(6)
 
 def dm2():
     #Drive mode 2 is manual control (WASD/Controller) with delay
@@ -96,6 +73,7 @@ def dm2():
     #read inputs
     #standby()
     #make a function that sends inputs to arduino
+    driving(6)
 
 def dm3():
     print("Drive Mode 3")
@@ -201,30 +179,35 @@ class gui(tk.Frame):
         self.label.focus_set()
         self.label.bind("<1>", lambda event: self.label.focus_set())
         self.label.grid(column = 1, row = 5)
-    # Set drive = 0 when a key is not pressed
-
-    # while loop for key is not pressed?
 
     def on_w(self, event):
         self.label.configure(text="Forward");
-        #drive = 2
-        #if dm1:
-        #someFunction(2)
-        bus.write_byte(duino_address,2)
-        readNum()
-        time.sleep(0.5)
-        #if dm2:
-        #pause(5)
-        #someFunctio(2)
+        if dm1:
+            driving(2)
+        if dm2:
+            time.sleep(7)
+            driving(2)
     def on_a(self, event):
         self.label.configure(text="Left");
-        drive = 4
+        if dm1:
+            driving(4)
+        if dm2:
+            time.sleep(7)
+            driving(4)
     def on_s(self, event):
         self.label.configure(text="Backward");
-        drive = 3
+        if dm1:
+            driving(3)
+        if dm2:
+            time.sleep(7)
+            driving(3)
     def on_d(self, event):
         self.label.configure(text="Right");
-        drive = 5
+        if dm1:
+            driving(5)
+        if dm2:
+            time.sleep(7)
+            driving(5)
     def on_wasd(newWindow, event):
         newWindow.label.configure(text="last key pressed: " + event.keysym);
     #initialize the frame with those button objects
