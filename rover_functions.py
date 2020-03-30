@@ -21,6 +21,8 @@ camera = PiCamera()
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
 #tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) 
+duino_address = 0x04
+
 #==========================================================
 #Functions
 
@@ -53,26 +55,26 @@ def dm1():
     #make a function that sends inputs to arduino
     
     bus = smbus.SMBus(1)
-    while(drive==0):
-        bus.write_byte(address,6)
+    while(drive=="stop"):
+        bus.write_byte(duino_address,6)
         time.sleep(0.5)
 
-    while(drive != 0):
+    while(drive != stop):
 
         if (drive == "forward"):
-            bus.write_byte(address,2)
+            bus.write_byte(duino_address,2)
             time.sleep(0.5)
         else if (drive == "backward"):
         bus.write_byte(address,3)
             time.sleep(0.5)
         else if (drive == "right"):
-            bus.write_byte(address,4)
+            bus.write_byte(duino_address,4)
             time.sleep(0.5)
         else if (drive == "left"):
-            bus.write_byte(address,5)
+            bus.write_byte(duino_address,5)
             time.sleep(0.5)
         else: #brake
-            bus.write_byte(address,6)
+            bus.write_byte(duino_address,6)
             time.sleep(0.5)
     
     time.sleep(0.1) #wait for 0.5 seconds before checking 
@@ -192,7 +194,7 @@ class gui(tk.Frame):
     # Set drive = 0 when a key is not pressed
 
     # while loop for key is not pressed?
-    drive = 0;
+    drive = "stop"
 
     def on_w(self, event):
         self.label.configure(text="Forward");
