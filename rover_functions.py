@@ -17,9 +17,10 @@ import adafruit_vl53l0x
 #==========================================================
 #constants
 camera = PiCamera()
-
+drive = "stop"
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
+bus = smbus.SMBus(1)
 #tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
 duino_address = 0x04
 
@@ -34,7 +35,10 @@ def standby():
 def getRange():
    # print('Range: {}mm'.format(tof_sensor.range))
    time.sleep(1)
-
+def readNum():
+    num = bus.read_byte(duino_address)
+    print("RPI Received", num)
+    return num
 def kill():
     #This will be the software kill
     DM = 0
@@ -55,7 +59,7 @@ def dm1():
     #read inputs
     #make a function that sends inputs to arduino
 
-    bus = smbus.SMBus(1)
+
     while(drive=="stop"):
         bus.write_byte(duino_address,6)
         time.sleep(0.5)
@@ -63,18 +67,23 @@ def dm1():
     while(drive != "stop"):
         if (drive == "forward"):
             bus.write_byte(duino_address,2)
+            readNum()
             time.sleep(0.5)
         elif (drive == "backward"):
             bus.write_byte(address,3)
+            readNum()
             time.sleep(0.5)
         elif (drive == "right"):
             bus.write_byte(duino_address,4)
+            readNum()
             time.sleep(0.5)
         elif (drive == "left"):
             bus.write_byte(duino_address,5)
+            readNum()
             time.sleep(0.5)
         else: #brake
             bus.write_byte(duino_address,6)
+            readNum()
             time.sleep(0.5)
 
     time.sleep(0.1) #wait for 0.5 seconds before checking

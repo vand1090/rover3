@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pyth
 # -*- coding:utf-8 -*-
 import smbus
 import time
@@ -19,12 +19,11 @@ def readNum():
 
 #while True:
 var = int(input("Enter 1-9: "))
-    #if not var:
-       # continue
+    #if not var
 
 writeNum(var)
 print("RPI sent ", var)
-
+time.sleep(0.5)
 num = readNum()
 print("RPI Received", num)
 time.sleep(0.5)
