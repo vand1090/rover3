@@ -19,17 +19,18 @@ int commandReceived = 0;
 //Motor Outputs
 //There are 4 motors
 //Left side and right side directions are tied together(left side always both in reverese or both forward, same for right) 
-int FOR_EN_RIGHT = 0; //R_EN on controller unit
-int FOR_EN_LEFT = 0;
-int REV_EN_LEFT = 0; //L_EN on controller unit
-int REV_EN_RIGHT = 0;
+#define FOR_EN_RIGHT 2 //R_EN on controller unit
+#define FOR_EN_LEFT 0
+#define REV_EN_LEFT 0 //L_EN on controller unit
+#define REV_EN_RIGHT 4
 
 //Same pin will control left and right PWM, assuming the motor controllers are okay with this
 //pwm gives speed
-int mc1_pwm = 0;
-int mc2_pwm = 0;
-int mc3_pwm = 0;
-int mc4_pwm = 0;
+#define mc1_pwm 0
+#define mc2_pwm_R 9
+#define mc2_pwm_L 10
+#define mc3_pwm 0
+#define mc4_pwm 0
 
 void setup() {
   // pin modes
@@ -40,7 +41,8 @@ void setup() {
   pinMode(REV_EN_RIGHT, OUTPUT);
   //pwm pins
   pinMode(mc1_pwm, OUTPUT);
-  pinMode(mc2_pwm, OUTPUT);
+  pinMode(mc2_pwm_L, OUTPUT);
+  pinMode(mc2_pwm_R, OUTPUT);
   pinMode(mc3_pwm, OUTPUT);
   pinMode(mc4_pwm, OUTPUT);
 
@@ -49,10 +51,10 @@ void setup() {
   digitalWrite(FOR_EN_LEFT, LOW);
   digitalWrite(REV_EN_LEFT, LOW);
   digitalWrite(REV_EN_RIGHT, LOW);
-  digitalWrite(mc1_pwm, LOW);
-  digitalWrite(mc2_pwm, LOW);
-  digitalWrite(mc3_pwm, LOW);
-  digitalWrite(mc4_pwm, LOW);
+  //digitalWrite(mc1_pwm, LOW);
+  //digitalWrite(mc2_pwm, LOW);
+  //digitalWrite(mc3_pwm, LOW);
+  //digitalWrite(mc4_pwm, LOW);
   
   pinMode(13, OUTPUT); // LED
   Serial.begin(9600);
@@ -65,6 +67,8 @@ void setup() {
   Wire.onRequest(sendData);
 
   Serial.println("Ready");
+  driveForward();
+  Serial.println("done");
 }
 
 void loop() {
@@ -82,14 +86,20 @@ void stopMotion(){
 }
 void driveForward(){
   //make sure reverse pins are disabled
-  digitalWrite(REV_EN_LEFT, LOW);
-  digitalWrite(REV_EN_RIGHT, LOW);
+  digitalWrite(REV_EN_LEFT, HIGH);
+  Serial.println(REV_EN_LEFT);
+  digitalWrite(REV_EN_RIGHT, HIGH);
+  Serial.println(REV_EN_RIGHT);
   //enable forward drive 
   digitalWrite(FOR_EN_RIGHT, HIGH);
+  Serial.println(FOR_EN_RIGHT);
   digitalWrite(FOR_EN_LEFT, HIGH);
+  Serial.println(FOR_EN_LEFT);
 
   //set speed value from 0 to 255 based on input
-
+  analogWrite(mc2_pwm_R, 0);
+  analogWrite(mc2_pwm_L, 255);
+  Serial.println(mc2_pwm_R);
 }
 void driveBackward(){
   //make sure forward pins are disabled
