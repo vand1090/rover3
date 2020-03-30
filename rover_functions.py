@@ -18,7 +18,7 @@ camera = PiCamera()
 
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
-#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
+#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) 
 #==========================================================
 #Functions
 
