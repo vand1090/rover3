@@ -59,7 +59,7 @@ def dm1():
         bus.write_byte(duino_address,6)
         time.sleep(0.5)
 
-    while(drive != stop):
+    while(drive != "stop"):
 
         if (drive == "forward"):
             bus.write_byte(duino_address,2)
