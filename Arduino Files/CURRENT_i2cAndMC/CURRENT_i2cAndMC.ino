@@ -143,7 +143,7 @@ void turnRight(){
 }
 void receiveData(int byteCount){
   while(Wire.available()){
-    commandReceived = Wire.read()-'0';//to convert char to int 
+    commandReceived = Wire.read();//-'0';//to convert char to int 
     Serial.print("Data received: ");
     Serial.println(commandReceived);
     
@@ -157,6 +157,7 @@ void receiveData(int byteCount){
     switch (commandReceived){
       //LED stuff for testing
       case 1:
+        n = 1;
         if(state==0){
           digitalWrite(13, HIGH);
           state=1;
@@ -168,18 +169,23 @@ void receiveData(int byteCount){
         break;
       case 2:   //drive forward state
         //driveForward();
+        n=2;
         break;
       case 3:   //drive back state
         //driveBackward();
+        n=3;
         break;
       case 4:   //turn left
         //turnLeft();
         break;
+        n=4;
       case 5:   //turn Right
-        turnRight();
+        //turnRight();
+        n=5;
         break;
       case 6:   //stop
         //stopMotion();
+        n=6;
         break;
       default:
         //stopMotion(); 
@@ -192,7 +198,7 @@ void receiveData(int byteCount){
   }
 }
 void sendData(){
-  Wire.write(commandReceived);
+  Wire.write(n);
 }
 void sendDistance(){
   distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
