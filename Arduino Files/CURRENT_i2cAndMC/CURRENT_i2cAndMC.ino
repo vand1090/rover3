@@ -13,6 +13,8 @@ int n = 0;
 int state = 0;
 int distance = 0;
 int commandReceived = 0;
+int goSpeed = 150;
+int stopSpeed = 0;
 
 
 //Motor Outputs
@@ -60,45 +62,52 @@ void setup() {
   Wire.onRequest(sendData);
 
   Serial.println("Ready");
-  driveForward();
+  //driveForward();
   Serial.println("done");
 }
 
 void loop() {
-  delay(1000);
+  delay(100);
 }
 void stopMotion(){
-  //set all motors to off
-  digitalWrite(FOR_EN_RIGHT, LOW);
-  digitalWrite(FOR_EN_LEFT, LOW);
-  digitalWrite(REV_EN_LEFT, LOW);
-  digitalWrite(REV_EN_RIGHT, LOW);
-
   //set speed value from 0 to 255 based on input
-
+  analogWrite(FOR_PWM_RIGHT, 0);
+  analogWrite(REV_PWM_RIGHT, 0);
+  analogWrite(FOR_PWM_LEFT, 0);
+  analogWrite(REV_PWM_LEFT, 0);
+  Serial.println("stopped");
 }
 void driveForward(){
+
   //set speed value from 0 to 255 based on input
-  analogWrite(FOR_PWM_RIGHT, 150);
-  analogWrite(REV_PWM_RIGHT, 0);
-   analogWrite(FOR_PWM_LEFT, 150);
-  analogWrite(REV_PWM_LEFT, 0);
-  //Serial.println(mc2_pwm_R);
+  analogWrite(FOR_PWM_RIGHT, goSpeed);
+  analogWrite(REV_PWM_RIGHT, stopSpeed);
+  analogWrite(FOR_PWM_LEFT, goSpeed);
+  analogWrite(REV_PWM_LEFT, stopSpeed);
+  Serial.println("end of drive forward");
 }
 void driveBackward(){
-
+  analogWrite(FOR_PWM_RIGHT, stopSpeed);
+  analogWrite(REV_PWM_RIGHT, goSpeed);
+  analogWrite(FOR_PWM_LEFT, stopSpeed);
+  analogWrite(REV_PWM_LEFT, goSpeed);
   //set speed value from 0 to 255 based on input   
 }
 
 void turnLeft(){
-
+  analogWrite(FOR_PWM_RIGHT, goSpeed);
+  analogWrite(REV_PWM_RIGHT, stopSpeed);
+  analogWrite(FOR_PWM_LEFT, stopSpeed);
+  analogWrite(REV_PWM_LEFT, goSpeed);
 
   //set speeds froom 0 to 255 based on input
 }
 void turnRight(){
-
-
   //set speeds froom 0 to 255 based on input
+  analogWrite(FOR_PWM_RIGHT, stopSpeed);
+  analogWrite(REV_PWM_RIGHT, goSpeed);
+  analogWrite(FOR_PWM_LEFT, goSpeed);
+  analogWrite(REV_PWM_LEFT, stopSpeed);
 }
 void receiveData(int byteCount){
   while(Wire.available()){
@@ -127,27 +136,28 @@ void receiveData(int byteCount){
         }
         break;
       case 2:   //drive forward state
-        //driveForward();
+        driveForward();
+        Serial.println("Going Forward");
         n=2;
         break;
       case 3:   //drive back state
-        //driveBackward();
+        driveBackward();
         n=3;
         break;
       case 4:   //turn left
-        //turnLeft();
+        turnLeft();
         break;
         n=4;
       case 5:   //turn Right
-        //turnRight();
+        turnRight();
         n=5;
         break;
       case 6:   //stop
-        //stopMotion();
+        stopMotion();
         n=6;
         break;
       default:
-        //stopMotion(); 
+        stopMotion(); 
       break;
     }
         
