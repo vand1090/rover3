@@ -38,7 +38,7 @@ def getRange():
 def driving(mode):
     bus.write_byte(duino_address,mode)
     readNum()
-    time.sleep(0.5)
+    #time.sleep(0.5)
 
 def readNum():
     num = bus.read_byte(duino_address)
@@ -174,6 +174,7 @@ class gui(tk.Frame):
         self.label.bind("<a>", self.on_a)
         self.label.bind("<s>", self.on_s)
         self.label.bind("<d>", self.on_d)
+        self.label.bind("<x>", self.on_x)
         # give keyboard focus to the label by default, and whenever
         # the user clicks on it
         self.label.focus_set()
@@ -184,30 +185,32 @@ class gui(tk.Frame):
         self.label.configure(text="Forward");
         if dm1:
             driving(2)
-        if dm2:
+        elif dm2:
             time.sleep(7)
             driving(2)
     def on_a(self, event):
         self.label.configure(text="Left");
         if dm1:
             driving(4)
-        if dm2:
+        elif dm2:
             time.sleep(7)
             driving(4)
     def on_s(self, event):
         self.label.configure(text="Backward");
         if dm1:
             driving(3)
-        if dm2:
+        elif dm2:
             time.sleep(7)
             driving(3)
     def on_d(self, event):
         self.label.configure(text="Right");
         if dm1:
             driving(5)
-        if dm2:
+        elif dm2:
             time.sleep(7)
             driving(5)
+    def on_x(self, event):
+        driving(6)
     def on_wasd(newWindow, event):
         newWindow.label.configure(text="last key pressed: " + event.keysym);
     #initialize the frame with those button objects
