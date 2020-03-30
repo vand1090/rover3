@@ -60,7 +60,7 @@ void setup() {
   Wire.onRequest(sendData);
 
   Serial.println("Ready");
-  //driveForward();
+  driveForward();
   Serial.println("done");
 }
 
@@ -79,9 +79,11 @@ void stopMotion(){
 }
 void driveForward(){
   //set speed value from 0 to 255 based on input
-  analogWrite(mc2_pwm_R, 0);
-  analogWrite(mc2_pwm_L, 255);
-  Serial.println(mc2_pwm_R);
+  analogWrite(FOR_PWM_RIGHT, 150);
+  analogWrite(REV_PWM_RIGHT, 0);
+   analogWrite(FOR_PWM_LEFT, 150);
+  analogWrite(REV_PWM_LEFT, 0);
+  //Serial.println(mc2_pwm_R);
 }
 void driveBackward(){
 
