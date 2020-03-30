@@ -17,7 +17,7 @@ import adafruit_vl53l0x
 #==========================================================
 #constants
 camera = PiCamera()
-drive = "stop"
+drive = 6
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
 bus = smbus.SMBus(1)
@@ -60,24 +60,24 @@ def dm1():
     #make a function that sends inputs to arduino
 
 
-    while(drive=="stop"):
+    if(drive==6):
         bus.write_byte(duino_address,6)
         time.sleep(0.5)
 
-    while(drive != "stop"):
-        if (drive == "forward"):
+    while(drive != 6):
+        if (drive == 2):
             bus.write_byte(duino_address,2)
             readNum()
             time.sleep(0.5)
-        elif (drive == "backward"):
+        elif (drive == 3):
             bus.write_byte(address,3)
             readNum()
             time.sleep(0.5)
-        elif (drive == "right"):
+        elif (drive == 4):
             bus.write_byte(duino_address,4)
             readNum()
             time.sleep(0.5)
-        elif (drive == "left"):
+        elif (drive == 5):
             bus.write_byte(duino_address,5)
             readNum()
             time.sleep(0.5)
@@ -177,6 +177,7 @@ class gui(tk.Frame):
     def dmOneBtn(self):
         self.btn1 = tk.Button(self, text = 'Drive Mode 1', command = self.dm1control)
         self.btn1.grid(column = 1, row = 2)
+
     def dmTwoBtn(self):
         self.btn2 = tk.Button(self, text = 'Drive Mode 2', command = self.dm2control)
         self.btn2.grid(column = 1, row = 3)
@@ -203,20 +204,27 @@ class gui(tk.Frame):
     # Set drive = 0 when a key is not pressed
 
     # while loop for key is not pressed?
-    drive = "stop"
 
     def on_w(self, event):
         self.label.configure(text="Forward");
-        drive = "forward"
+        #drive = 2
+        #if dm1:
+        #someFunction(2)
+        bus.write_byte(duino_address,2)
+        readNum()
+        time.sleep(0.5)
+        #if dm2:
+        #pause(5)
+        #someFunctio(2)
     def on_a(self, event):
         self.label.configure(text="Left");
-        drive = "left"
+        drive = 4
     def on_s(self, event):
         self.label.configure(text="Backward");
-        drive = "backward"
+        drive = 3
     def on_d(self, event):
         self.label.configure(text="Right");
-        drive = "right"
+        drive = 5
     def on_wasd(newWindow, event):
         newWindow.label.configure(text="last key pressed: " + event.keysym);
     #initialize the frame with those button objects
