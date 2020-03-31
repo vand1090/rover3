@@ -175,6 +175,10 @@ class gui(tk.Frame):
         self.label.bind("<s>", self.on_s)
         self.label.bind("<d>", self.on_d)
         self.label.bind("<x>", self.on_x)
+        self.label.bind("<KeyRelease-w>", self.off_w)
+        self.label.bind("<KeyRelease-a>", self.off_a)
+        self.label.bind("<KeyRelease-s>", self.off_s)
+        self.label.bind("<KeyRelease-d>", self.off_d)
         # give keyboard focus to the label by default, and whenever
         # the user clicks on it
         self.label.focus_set()
@@ -188,6 +192,8 @@ class gui(tk.Frame):
         elif dm2:
             time.sleep(7)
             driving(2)
+    def off_w(self, event):
+        driving(6)
     def on_a(self, event):
         self.label.configure(text="Left");
         if dm1:
@@ -195,6 +201,8 @@ class gui(tk.Frame):
         elif dm2:
             time.sleep(7)
             driving(4)
+    def off_a(self, event):
+        driving(6)
     def on_s(self, event):
         self.label.configure(text="Backward");
         if dm1:
@@ -202,6 +210,8 @@ class gui(tk.Frame):
         elif dm2:
             time.sleep(7)
             driving(3)
+    def off_s(self, event):
+        driving(6)
     def on_d(self, event):
         self.label.configure(text="Right");
         if dm1:
@@ -209,8 +219,11 @@ class gui(tk.Frame):
         elif dm2:
             time.sleep(7)
             driving(5)
+    def off_d(self, event):
+        driving(6)
     def on_x(self, event):
         driving(6)
+        
     def on_wasd(newWindow, event):
         newWindow.label.configure(text="last key pressed: " + event.keysym);
     #initialize the frame with those button objects
