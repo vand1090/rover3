@@ -1,0 +1,18 @@
+Rover Drive 4 bits
+0-15
+0 - kill, dead stop
+1 - Normal Forward
+2 - Normal Forward Left
+3 - Normal Forward Right
+4 - Normal Reverse
+5 - Normal Reverse Left
+6 - Normal Reverse Right
+7 - Fast Forward
+8 - Fast Forward Left
+9 - Fast Forward Right
+10 - Fast Reverse
+11 - Fast Reverse Left
+12 - Fast Reverse Right
+13 - Stop Left
+14 - Stop Right
+15 - Slow-stop (Ramp-down of speed instead of instant stop)
