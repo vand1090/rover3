@@ -13,7 +13,7 @@ int n = 0;
 int state = 0;
 int distance = 0;
 int commandReceived = 0;
-int goSpeed = 150;
+int goSpeed =120;
 int stopSpeed = 0;
 
 
@@ -97,15 +97,15 @@ void driveBackward(){
 void turnLeft(){
   analogWrite(FOR_PWM_RIGHT, goSpeed);
   analogWrite(REV_PWM_RIGHT, stopSpeed);
-  analogWrite(FOR_PWM_LEFT, stopSpeed);
-  analogWrite(REV_PWM_LEFT, goSpeed);
+  analogWrite(FOR_PWM_LEFT, goSpeed/3);
+  analogWrite(REV_PWM_LEFT, stopSpeed);
 
   //set speeds froom 0 to 255 based on input
 }
 void turnRight(){
   //set speeds froom 0 to 255 based on input
-  analogWrite(FOR_PWM_RIGHT, stopSpeed);
-  analogWrite(REV_PWM_RIGHT, goSpeed);
+  analogWrite(FOR_PWM_RIGHT, goSpeed/3);
+  analogWrite(REV_PWM_RIGHT, stopSpeed);
   analogWrite(FOR_PWM_LEFT, goSpeed);
   analogWrite(REV_PWM_LEFT, stopSpeed);
 }
