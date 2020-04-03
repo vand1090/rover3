@@ -2,7 +2,7 @@ Rover Drive 4 bits
 0-15
 0 - kill, dead stop
 1 - Normal Forward
-2 - Normal Forward Left
+2 - Normal Forward Left 
 3 - Normal Forward Right
 4 - Normal Reverse
 5 - Normal Reverse Left
@@ -16,3 +16,11 @@ Rover Drive 4 bits
 13 - Stop Left
 14 - Stop Right
 15 - Slow-stop (Ramp-down of speed instead of instant stop)
+
+Current Arduino code drive states
+    //1 flips LED state
+    //2 drives motor forward
+    //3 drives motor backward
+    //4 turns left
+    //5 turns right
+    //6 stops rover
