@@ -22,7 +22,7 @@ drive = 6
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
 bus = smbus.SMBus(1)
-#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
+tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
 duino_address = 0x04
 
 #==========================================================
@@ -34,8 +34,9 @@ def standby():
     time.sleep(5)
     #return True
 def getRange():
-   # print('Range: {}mm'.format(tof_sensor.range))
-   time.sleep(1)
+   print('Range: {}mm'.format(tof_sensor.range))
+   #time.sleep(1)
+   return tof_sensor.range
 def driving(mode):
     bus.write_byte(duino_address,mode)
     readNum()
@@ -48,7 +49,8 @@ def readNum():
 
 def kill():
     #This will be the software kill
-    DM = 0
+    driving(6)
+    #DM = 0
     #stop all movement
     #exit the program
     exit()
@@ -103,17 +105,21 @@ def findMe():
     print("Searching")
 
 def checkObs():
-    rangeMin = 30; #Rover allowed no closer than this
-    rangeRead = 10; #replace this with LIDAR check
+    rangeMin = 30 #Rover allowed no closer than this
+    rangeRead = getRange() #replace this with LIDAR check
     #If there's an obstruction within range, return true
     if (rangeRead <= rangeMin):
+        print("Obstacle Detected")
         return True
     else:
+        print("No obstacles")
         return False
 
 def avoidObs():
     #this function tries to move the rover arund an obstacle
     print("avoiding obstacles")
+    #Turn a bit to see if obstacles are clear
+
 
 def setHeading(loc, goal):
     print("set heading")
@@ -141,7 +147,9 @@ class gui(tk.Frame):
         dm2()
     def dm3control(self):
         endCam()
-        startCam()
+        #Disabled camera during testing
+
+        #startCam()
         dm3()
     def swKill(self):
         endCam()
@@ -193,7 +201,7 @@ class gui(tk.Frame):
             driving(2)
             self.after(20)
         elif dm2:
-            time.sleep(7)
+            time.sleep(2)
             driving(2)
     def off_w(self, event):
         driving(6)
@@ -202,7 +210,7 @@ class gui(tk.Frame):
         if dm1:
             driving(4)
         elif dm2:
-            time.sleep(7)
+            time.sleep(2)
             driving(4)
     def off_a(self, event):
         driving(6)
