@@ -86,8 +86,8 @@ def dm3():
     while(drive):
         loc = findMe()
         setHeading(loc, goal_loc)
-        if(checkObs()):
-            avoidObs()
+        if(checkObs() == 2):
+            avoidObs(2)
         count = count+1
         if(count == 10):
             drive=False
@@ -105,21 +105,34 @@ def findMe():
     print("Searching")
 
 def checkObs():
-    rangeMin = 30 #Rover allowed no closer than this
-    rangeRead = getRange() #replace this with LIDAR check
+    rangeMin = 30 #Rover allowed no closer than this (mm)
+    rangeAvoid = 100
+    rangeRead = getRange() #Reads the LIDAR
     #If there's an obstruction within range, return true
     if (rangeRead <= rangeMin):
-        print("Obstacle Detected")
-        return True
+        print("WARNING: Too Close")
+        return 2
+    elif(rangeRead <= rangeAvoid):
+        print("Obstacle Detected. Begin Reroute Procedure")
+        return 1
     else:
         print("No obstacles")
-        return False
+        return 0
 
-def avoidObs():
+def avoidObs(severity):
     #this function tries to move the rover arund an obstacle
     print("avoiding obstacles")
-    #Turn a bit to see if obstacles are clear
 
+    if(severity == 2):
+        driving(6) #stop the rover, then back it up
+
+    elif(severity == 1):
+        #slow down, start turning
+        driving(4) # forward left
+
+    else:
+        print("no obstacles to avoid")
+        
 
 def setHeading(loc, goal):
     print("set heading")
