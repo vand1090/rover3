@@ -9,6 +9,7 @@ import smbus
 import board
 import busio
 import adafruit_vl53l0x
+from debouncer import Debouncer
 #from keybinder import KeyBinder
 #==========================================================
 # Rover 3 Control Code Functions - Raspberry Pi
@@ -53,7 +54,7 @@ def kill():
     exit()
 
 def startCam():
-    camera.start_preview(fullscreen=False,window=(0,0,600,500)) #xywh
+    camera.start_preview(fullscreen=False,window=(0,0,200,200)) #xywh
 
 def endCam():
     camera.stop_preview()
@@ -170,6 +171,7 @@ class gui(tk.Frame):
         self.__init__
     def keyBind(self):
         self.label = tk.Label(self, text="Key Press:  ", width=20)
+        self.debouncer = Debouncer(self.on_w,self.off_w)
         self.label.bind("<w>", self.on_w)
         self.label.bind("<a>", self.on_a)
         self.label.bind("<s>", self.on_s)
@@ -177,8 +179,8 @@ class gui(tk.Frame):
         self.label.bind("<x>", self.on_x)
         self.label.bind("<KeyRelease-w>", self.off_w)
         self.label.bind("<KeyRelease-a>", self.off_a)
-        self.label.bind("<KeyRelease-s>", self.off_s)
-        self.label.bind("<KeyRelease-d>", self.off_d)
+        #self.label.bind("<KeyRelease-s>", self.off_s)
+        #self.label.bind("<KeyRelease-d>", self.off_d)
         # give keyboard focus to the label by default, and whenever
         # the user clicks on it
         self.label.focus_set()
@@ -189,6 +191,7 @@ class gui(tk.Frame):
         self.label.configure(text="Forward");
         if dm1:
             driving(2)
+            self.after(20)
         elif dm2:
             time.sleep(7)
             driving(2)
@@ -223,7 +226,7 @@ class gui(tk.Frame):
         driving(6)
     def on_x(self, event):
         driving(6)
-        
+
     def on_wasd(newWindow, event):
         newWindow.label.configure(text="last key pressed: " + event.keysym);
     #initialize the frame with those button objects
