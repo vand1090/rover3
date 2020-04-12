@@ -250,17 +250,33 @@ class gui(tk.Frame):
 
     def on_wasd(newWindow, event):
         newWindow.label.configure(text="last key pressed: " + event.keysym);
+
+    def show_new_window(self, cont):
+        frame = self.frames[cont]
+        frame.tkraise()
     #initialize the frame with those button objects
     def __init__(self, master=None, drive_mode = 0):
-        tk.Frame.__init__(self, master)
+
+        container = tk.Frame(self)
+        #tk.Frame.__init__(self, master)
         #self.vid = MyVideoCapture(video_source)
-        self.grid()
-        self.exitBtn()
-        self.rstBtn()
-        self.dmOneBtn()
-        self.dmTwoBtn()
-        self.dmThreeBtn()
-        self.keyBind()
+        #self.grid()
+        #self.exitBtn()
+        #self.rstBtn()
+        #self.dmOneBtn()
+        #self.dmTwoBtn()
+        #self.dmThreeBtn()
+        #self.keyBind()
+
+        
+        self.windows = {}
+
+        for F in (mainMenu, driveModeOneWindow, driveModeTwoWindow):
+            frame = F(container, self)
+            self.windows[F] = frame
+            frame.grid(row=0, column=0, stickey="nsew")
+
+        self.show_new_window(mainMenu)
 
 #Reading GPS position. do not use for now
 #===================================================================
