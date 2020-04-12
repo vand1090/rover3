@@ -254,9 +254,9 @@ class gui(tk.Frame):
 
     #initialize the frame with those button objects
     def __init__(self, master=None, drive_mode = 0):
-
-        #container = tk.Frame(self)
-        tk.Frame.__init__(self, master)
+        tk.Tk.__init__(self)
+        container = tk.Frame(self)
+        #tk.Frame.__init__(self, master)
         #self.vid = MyVideoCapture(video_source)
         self.grid()
         #self.exitBtn()
@@ -265,9 +265,15 @@ class gui(tk.Frame):
         #self.dmTwoBtn()
         #self.dmThreeBtn()
         #self.keyBind()
+
+        container.pack(side="top", fill="both", expand = True)
+
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+        
         self.windows = {}
 
-        for F in (mainMenu):
+        for F in (mainMenu, driveModeOnePage):
             frame = F(container, self)
             self.windows[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -289,6 +295,21 @@ class mainMenu(tk.Frame):
 
         button2 = tk.Button(self, text="Visit Page 2", command=lambda: controller.show_frame(PageTwo))
         button2.pack()
+class driveModeOnePage(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
+        label.pack(pady=10,padx=10)
+
+        button1 = tk.Button(self, text="Back to Home",
+                            command=lambda: controller.show_frame(StartPage))
+        button1.pack()
+
+        button2 = tk.Button(self, text="Page Two",
+                            command=lambda: controller.show_frame(PageTwo))
+        button2.pack()
+
 
 
 #Reading GPS position. do not use for now
