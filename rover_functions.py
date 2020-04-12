@@ -132,7 +132,7 @@ def avoidObs(severity):
 
     else:
         print("no obstacles to avoid")
-        
+
 
 def setHeading(loc, goal):
     print("set heading")
@@ -251,32 +251,45 @@ class gui(tk.Frame):
     def on_wasd(newWindow, event):
         newWindow.label.configure(text="last key pressed: " + event.keysym);
 
-    def show_new_window(self, cont):
-        frame = self.frames[cont]
-        frame.tkraise()
+
     #initialize the frame with those button objects
     def __init__(self, master=None, drive_mode = 0):
 
-        container = tk.Frame(self)
-        #tk.Frame.__init__(self, master)
+        #container = tk.Frame(self)
+        tk.Frame.__init__(self, master)
         #self.vid = MyVideoCapture(video_source)
-        #self.grid()
+        self.grid()
         #self.exitBtn()
         #self.rstBtn()
         #self.dmOneBtn()
         #self.dmTwoBtn()
         #self.dmThreeBtn()
         #self.keyBind()
-
-        
         self.windows = {}
 
-        for F in (mainMenu, driveModeOneWindow, driveModeTwoWindow):
+        for F in (mainMenu):
             frame = F(container, self)
             self.windows[F] = frame
-            frame.grid(row=0, column=0, stickey="nsew")
+            frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_new_window(mainMenu)
+
+    def show_new_window(self, cont):
+        frame = self.frames[cont]
+        frame.tkraise()
+class mainMenu(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self,parent)
+        label = tk.Label(self, text="Start Page", font=LARGE_FONT)
+        label.pack(pady=10,padx=10)
+
+        button = tk.Button(self, text="Visit Page 1", command=lambda: controller.show_frame(PageOne))
+        button.pack()
+
+        button2 = tk.Button(self, text="Visit Page 2", command=lambda: controller.show_frame(PageTwo))
+        button2.pack()
+
 
 #Reading GPS position. do not use for now
 #===================================================================

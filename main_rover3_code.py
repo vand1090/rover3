@@ -12,7 +12,7 @@ import tkinter as tk
 #==========================================================
 
 #while(fn.restart):
-    #starts gui window using the class define abovejjjjjjjjjjjjjjjjjjjjjjjjjjjj
+    #starts gui window using the class define above
 window = tk.Tk()
 window.geometry('350x300+600+100')
 app = fn.gui(master=window)
