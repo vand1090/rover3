@@ -25,6 +25,8 @@ bus = smbus.SMBus(1)
 tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
 duino_address = 0x04
 
+LARGE_FONT= ("Verdana", 12)
+
 #==========================================================
 #Functions
 
@@ -139,57 +141,16 @@ def setHeading(loc, goal):
 
 #===========================================================================
 #GUI class
-class gui(tk.Frame):
+class gui(tk.Tk):
     #Define control state commands
         #these are the commands from the buttons on the GUI
         #fn is the rover functions program
         #might change this to open a fresh GUI inside those fn.dm# functions
         #alternative is to change the existing GUI
         #Not sure which option is faster
-    def dm1control(self):
-        endCam()
-        startCam()
-        #newWindow = tk.Toplevel(self)
-        #dm1_quitBtn = tk.Button(newWindow, text='Quit', command = newWindow.destroy)
-        #dm1_quitBtn.pack()
-        dm1()
-
-    def dm2control(self):
-        endCam()
-        startCam()
-        dm2()
-    def dm3control(self):
-        endCam()
-        #Disabled camera during testing
-
-        #startCam()
-        dm3()
-    def swKill(self):
-        endCam()
-        kill()
     #these are the button objects
-    def exitBtn(self):
-        self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
-        self.QUIT.grid(column = 1, row = 1)
-    def rstBtn(self):
-        self.QUIT = tk.Button(self, text='Restart', command = self.resetSwitch)
-        self.QUIT.grid(column = 2, row = 1)
-    def dmOneBtn(self):
-        self.btn1 = tk.Button(self, text = 'Drive Mode 1', command = self.dm1control)
-        self.btn1.grid(column = 1, row = 2)
 
-    def dmTwoBtn(self):
-        self.btn2 = tk.Button(self, text = 'Drive Mode 2', command = self.dm2control)
-        self.btn2.grid(column = 1, row = 3)
-    def dmThreeBtn(self):
-        self.btn3 = tk.Button(self, text = 'Drive Mode 3', command = self.dm3control)
-        self.btn3.grid(column = 1, row = 4)
-    def killSwitch(self):
-        self.killBtn = tk.Button(self, text = 'Kill Rover Action', command = self.swKill)
-    def resetSwitch(self):
-        endCam()
-        self.destroy
-        self.__init__
+
     def keyBind(self):
         self.label = tk.Label(self, text="Key Press:  ", width=20)
         self.debouncer = Debouncer(self.on_w,self.off_w)
@@ -253,62 +214,95 @@ class gui(tk.Frame):
 
 
     #initialize the frame with those button objects
-    def __init__(self, master=None, drive_mode = 0):
-        tk.Tk.__init__(self)
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
         container = tk.Frame(self)
-        #tk.Frame.__init__(self, master)
-        #self.vid = MyVideoCapture(video_source)
-        self.grid()
-        #self.exitBtn()
-        #self.rstBtn()
-        #self.dmOneBtn()
-        #self.dmTwoBtn()
-        #self.dmThreeBtn()
-        #self.keyBind()
-
         container.pack(side="top", fill="both", expand = True)
-
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-        
+        container.grid_rowconfigure(1, weight=1)
+        container.grid_columnconfigure(1, weight=1)
+        #self.grid()
         self.windows = {}
 
-        for F in (mainMenu, driveModeOnePage):
+        for F in (mainMenu, dm1Page):
             frame = F(container, self)
             self.windows[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-
         self.show_new_window(mainMenu)
 
     def show_new_window(self, cont):
-        frame = self.frames[cont]
+        frame = self.windows[cont]
         frame.tkraise()
+
+
 class mainMenu(tk.Frame):
 
+    def exitBtn(self):
+        self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
+        self.QUIT.grid(column = 1, row = 1)
+    def rstBtn(self):
+        self.QUIT = tk.Button(self, text='Restart', command = self.resetSwitch)
+        self.QUIT.grid(column = 2, row = 1)
+    def dmOneBtn(self):
+        self.btn1 = tk.Button(self, text = 'Drive Mode 1', command = self.dm1control)
+        self.btn1.grid(column = 1, row = 2)
+
+    def dmTwoBtn(self):
+        self.btn2 = tk.Button(self, text = 'Drive Mode 2', command = self.dm2control)
+        self.btn2.grid(column = 1, row = 3)
+    def dmThreeBtn(self):
+        self.btn3 = tk.Button(self, text = 'Drive Mode 3', command = self.dm3control)
+        self.btn3.grid(column = 1, row = 4)
+
+    def dm1control(self):
+        endCam()
+        startCam()
+        #newWindow = tk.Toplevel(self)
+        #dm1_quitBtn = tk.Button(newWindow, text='Quit', command = newWindow.destroy)
+        #dm1_quitBtn.pack()
+        dm1()
+
+    def dm2control(self):
+        endCam()
+        startCam()
+        dm2()
+    def dm3control(self):
+        endCam()
+        #Disabled camera during testing
+
+        #startCam()
+        dm3()
+    def swKill(self):
+        endCam()
+        kill()
+    def killSwitch(self):
+        self.killBtn = tk.Button(self, text = 'Kill Rover Action', command = self.swKill)
+    def resetSwitch(self):
+        endCam()
+        self.destroy
+        self.__init__
+
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self,parent)
-        label = tk.Label(self, text="Start Page", font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
+        #tk.Frame.__init__(self,parent)
+        #label = tk.Label(self, text="Start Page", font=LARGE_FONT)
+        #label.pack(pady=10,padx=10)
 
-        button = tk.Button(self, text="Visit Page 1", command=lambda: controller.show_frame(PageOne))
-        button.pack()
+        #button = tk.Button(self, text="Visit Page 1", command=lambda: controller.show_frame(driveModeOnePage))
+        #button.pack()
 
-        button2 = tk.Button(self, text="Visit Page 2", command=lambda: controller.show_frame(PageTwo))
-        button2.pack()
-class driveModeOnePage(tk.Frame):
+        tk.Frame.__init__(self, parent)
+        #self.vid = MyVideoCapture(video_source)
+        self.grid()
+        self.exitBtn()
+        self.rstBtn()
+        self.dmOneBtn()
+        self.dmTwoBtn()
+        self.dmThreeBtn()
+        #self.keyBind()
 
+
+class d(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
-
-        button1 = tk.Button(self, text="Back to Home",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()
-
-        button2 = tk.Button(self, text="Page Two",
-                            command=lambda: controller.show_frame(PageTwo))
-        button2.pack()
 
 
 
