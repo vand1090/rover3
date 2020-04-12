@@ -1,9 +1,9 @@
-#from gpiozero import * #uncomment this on the pi
-#import cv2 #uncomment this on the pi
+from gpiozero import * #uncomment this on the pi
+import cv2 #uncomment this on the pi
 import rover_functions as fn
 import time
-# import serial
-# from picamera import PiCamera #uncomment this on the pi
+import serial
+from picamera import PiCamera #uncomment this on the pi
 import tkinter as tk
 #==========================================================
 # Rover 3 Control Code Module A - Raspberry Pi

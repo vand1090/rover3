@@ -1,14 +1,14 @@
-#import serial
+import serial
 import time
 #ser = serial.Serial('/dev/ttyACM0', 9600)
 import tkinter as tk
-# import cv2
-# from picamera import PiCamera
-# import smbus
+import cv2
+from picamera import PiCamera
+import smbus
 
-# import board
-# import busio
-# import adafruit_vl53l0x
+import board
+import busio
+import adafruit_vl53l0x
 from debouncer import Debouncer
 #from keybinder import KeyBinder
 #==========================================================
@@ -17,12 +17,12 @@ from debouncer import Debouncer
 # Spring 2020
 #==========================================================
 #constants
-# camera = PiCamera()
+camera = PiCamera()
 drive = 6
 restart = True
-# i2c = busio.I2C(board.SCL, board.SDA)
-# bus = smbus.SMBus(1)
-# tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
+i2c = busio.I2C(board.SCL, board.SDA)
+bus = smbus.SMBus(1)
+tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
 duino_address = 0x04
 
 LARGE_FONT= ("Verdana", 12)
@@ -246,7 +246,7 @@ class mainMenu(tk.Frame):
         #move this to control modes:
         #self.keyBind()
 
-    
+
     def exitBtn(self): #kill the program
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
         self.QUIT.grid(column = 1, row = 2)
@@ -279,14 +279,14 @@ class mainMenu(tk.Frame):
         self.destroy
         self.__init__
 
-    
+
 #here begins the gui for drive mode 1. Implements a keylistener
 class dm1Page(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Drive Mode 1", font=LARGE_FONT)
         label.grid(column=1, row=1)
-        
+
         self.grid()
         self.exitBtn()
         self.mainMenuBtn(controller)
@@ -297,7 +297,7 @@ class dm1Page(tk.Frame):
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
         self.QUIT.grid(column = 1, row = 2)
-    
+
     def mainMenuBtn(self, controller):
         self.btnMM = tk.Button(self, text = 'Main Menu', command =lambda: controller.show_new_window(mainMenu))
         self.btnMM.grid(column = 2, row = 2)
@@ -311,7 +311,7 @@ class dm2Page(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Drive Mode 2", font=LARGE_FONT)
         label.grid(column=1, row=1)
-        
+
         self.grid()
         self.exitBtn()
         self.mainMenuBtn(controller)
@@ -322,7 +322,7 @@ class dm2Page(tk.Frame):
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
         self.QUIT.grid(column = 1, row = 2)
-    
+
     def mainMenuBtn(self, controller):
         self.btnMM = tk.Button(self, text = 'Main Menu', command =lambda: controller.show_new_window(mainMenu))
         self.btnMM.grid(column = 2, row = 2)
@@ -337,7 +337,7 @@ class dm3Page(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Drive Mode 3", font=LARGE_FONT)
         label.grid(column=1, row=1)
-        
+
         self.grid()
         self.exitBtn()
         self.mainMenuBtn(controller)
@@ -348,7 +348,7 @@ class dm3Page(tk.Frame):
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
         self.QUIT.grid(column = 1, row = 2)
-    
+
     def mainMenuBtn(self, controller):
         self.btnMM = tk.Button(self, text = 'Main Menu', command =lambda: controller.show_new_window(mainMenu))
         self.btnMM.grid(column = 2, row = 2)
