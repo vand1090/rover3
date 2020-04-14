@@ -293,6 +293,7 @@ class dm1Page(tk.Frame):
             time.sleep(dm2delay)
             driving(1)
     def off_w(self, event):
+        print("off w")
         driving(15)
     def on_a(self, event):
         self.label.configure(text="Left")
