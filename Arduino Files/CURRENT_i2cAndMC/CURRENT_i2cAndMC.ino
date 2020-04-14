@@ -16,7 +16,6 @@ int commandReceived = 0;
 //set speed value from 0 to 255   
 int goNormalSpeed = 120;
 int goFastSpeed = 220;
-int stopTurnSpeed = 255;
 int stopSpeed = 0;
 int speed = 0;
 
@@ -152,18 +151,6 @@ void fastReverseRight(){
   analogWrite(FOR_PWM_LEFT, stopSpeed);
   analogWrite(REV_PWM_LEFT, goFastSpeed);
 }
-void stopForwardRight(){//SAME AS NORMAL RIGHT
-  analogWrite(FOR_PWM_RIGHT, stopTurnSpeed/3);
-  analogWrite(REV_PWM_RIGHT, stopSpeed);
-  analogWrite(FOR_PWM_LEFT, stopTurnSpeed);
-  analogWrite(REV_PWM_LEFT, stopSpeed);
-}
-void stopForwardLeft(){// SAME AS NORMAL LEFT
-  analogWrite(FOR_PWM_RIGHT, stopTurnSpeed);
-  analogWrite(REV_PWM_RIGHT, stopSpeed);
-  analogWrite(FOR_PWM_LEFT, stopTurnSpeed/3);
-  analogWrite(REV_PWM_LEFT, stopSpeed);
-}
 void slowStop(){
   for (speed = goNormalSpeed; speed <= 0; i--)
     if(commandReceived==0)//if stop key is pressed
@@ -264,11 +251,13 @@ void receiveData(int byteCount){
         n=12;
         break;
       case 13:  //Stop Forward Left
-        stopForwardLeft();
+        stopMotion();
+        ForwardLeft();
         n=13;
         break;
       case 14:  //Stop Forward Right
-        stopForwardRight();
+        stopMotion();
+        ForwardRight();
         n=14;
         break;
       case 15:  //Slow-stop
