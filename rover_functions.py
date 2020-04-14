@@ -41,19 +41,21 @@ def standby():
     #can also be used for drive mode 2
     time.sleep(5)
     #return True
-# def getRange():
-#    print('Range: {}mm'.format(tof_sensor.range))
-#    #time.sleep(1)
-#    return tof_sensor.range
+
+def getRange():
+   print('Range: {}mm'.format(tof_sensor.range))
+   #time.sleep(1)
+   return tof_sensor.range
+
 def driving(mode):
-    #bus.write_byte(duino_address,mode)
-    #readNum()
+    bus.write_byte(duino_address,mode)
+    readNum()
     time.sleep(0.5)
 
-# def readNum():
-#     num = bus.read_byte(duino_address)
-#     print("RPI Received", num)
-#     return num
+def readNum():
+    num = bus.read_byte(duino_address)
+    print("RPI Received", num)
+    return num
 
 def kill():
     #This will be the software kill
@@ -63,11 +65,11 @@ def kill():
     #exit the program
     exit()
 
-# def startCam():
-#     camera.start_preview(fullscreen=False,window=(0,0,200,200)) #xywh
+def startCam():
+    camera.start_preview(fullscreen=False,window=(0,0,200,200)) #xywh
 
-# def endCam():
-#     camera.stop_preview()
+def endCam():
+    camera.stop_preview()
 
 def dm1():
     #Drive mode 1 is manual control (WASD/Controller)
@@ -148,91 +150,6 @@ def setHeading(loc, goal):
 #===========================================================================
 #GUI class
 class gui(tk.Tk):
-    def keyBind(self):
-        self.label = tk.Label(self, text="Key Press:  ", width=20)
- 
-        self.shift = Debouncer(self.on_shift,self.off_shift)
-        self.w = Debouncer(self.on_w,self.off_w)
-        self.a = Debouncer(self.on_a,self.off_a)
-        self.s = Debouncer(self.on_s,self.off_s)
-        self.d = Debouncer(self.on_d,self.off_d)
-        self.x = Debouncer(self.on_x,self.off_x)
-
-        self.label.bind("<Shift_L>", self.shift.released)
-        self.label.bind("<w>", self.w.pressed)
-        self.label.bind("<a>", self.a.pressed)
-        self.label.bind("<s>", self.s.pressed)
-        self.label.bind("<d>", self.d.pressed)
-        self.label.bind("<x>", self.x.pressed)
-        
-        self.label.bind("<KeyRelease-Shift_L>", self.shift.released)
-        self.label.bind("<KeyRelease-w>", self.w.released)
-        self.label.bind("<KeyRelease-a>", self.a.released)
-        self.label.bind("<KeyRelease-s>", self.s.released)
-        self.label.bind("<KeyRelease-d>", self.d.released)
-        self.label.bind("<KeyRelease-x>", self.x.released)        
-        # give keyboard focus to the label by default, and whenever
-        # the user clicks on it
-        self.label.focus_set()
-        self.label.bind("<1>", lambda event: self.label.focus_set())
-        self.label.grid(column = 1, row = 5)
-
-    def on_shift(self,event):
-        global shift
-        shift = 1
-    def off_shift(self, event):
-        global shift
-        shift = 0
-    def on_w(self, event):
-        self.label.configure(text="Forward")
-        if dm1:
-            driving(1)
-        elif dm2:
-            time.sleep(dm2delay)
-            driving(1)   
-    def off_w(self, event):
-        driving(15)
-    def on_a(self, event):
-        self.label.configure(text="Left")
-        if dm1:
-            driving(3)
-        elif dm2:
-            time.sleep(2)
-            driving(3)
-    def off_a(self, event):
-        driving(15)
-        
-    def on_s(self, event):
-        self.label.configure(text="Backward")
-        if dm1:
-            driving(2)
-        elif dm2:
-            time.sleep(2)
-            driving(2)
-    def off_s(self, event):
-        driving(15)
-        
-    def on_d(self, event):
-        self.label.configure(text="Right")
-        if dm1:
-            driving(4)
-        elif dm2:
-            time.sleep(2)
-            driving(4)
-    def off_d(self, event):
-        driving(15)
-        
-    def on_x(self, event):
-        driving(0)
-    def off_x(self, event):
-        global shift
-        global w
-        shift = 0
-        w = 0
-        
-    def on_wasd(self, event):
-        self.label.configure(text="last key pressed: " + event.keysym)
-
 
     #initialize base frame as an array of 4 possible windows
     #main menu, DM1, Dm2, Dm3
@@ -273,10 +190,6 @@ class mainMenu(tk.Frame):
         self.dmTwoBtn(controller)
         self.dmThreeBtn(controller)
 
-        #move this to control modes:
-        #self.keyBind()
-
-
     def exitBtn(self): #kill the program
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
         self.QUIT.grid(column = 1, row = 2)
@@ -297,7 +210,7 @@ class mainMenu(tk.Frame):
         self.btn3.grid(column = 1, row = 5)
 
     def swKill(self): # stops all rover action
-        #endCam()
+        endCam()
         kill()
 
     def killSwitch(self):
@@ -305,7 +218,7 @@ class mainMenu(tk.Frame):
 
 
     def resetSwitch(self): #function for reset button
-        #endCam()
+        endCam()
         self.destroy
         self.__init__
 
@@ -320,9 +233,10 @@ class dm1Page(tk.Frame):
         self.grid()
         self.exitBtn()
         self.mainMenuBtn(controller)
-
-        #startCam()
-        #dm1()
+        startCam()
+        dm1()
+        #move this to control modes:
+        self.keyBind()
 
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
@@ -333,8 +247,94 @@ class dm1Page(tk.Frame):
         self.btnMM.grid(column = 2, row = 2)
 
     def swKill(self):
-        #endCam()
+        endCam()
         kill()
+
+    def keyBind(self):
+        self.label = tk.Label(self, text="Key Press:  ", width=20)
+
+        self.shift = Debouncer(self.on_shift,self.off_shift)
+        self.w = Debouncer(self.on_w,self.off_w)
+        self.a = Debouncer(self.on_a,self.off_a)
+        self.s = Debouncer(self.on_s,self.off_s)
+        self.d = Debouncer(self.on_d,self.off_d)
+        self.x = Debouncer(self.on_x,self.off_x)
+
+        self.label.bind("<Shift_L>", self.shift.released)
+        self.label.bind("<w>", self.w.pressed)
+        self.label.bind("<a>", self.a.pressed)
+        self.label.bind("<s>", self.s.pressed)
+        self.label.bind("<d>", self.d.pressed)
+        self.label.bind("<x>", self.x.pressed)
+
+        self.label.bind("<KeyRelease-Shift_L>", self.shift.released)
+        self.label.bind("<KeyRelease-w>", self.w.released)
+        self.label.bind("<KeyRelease-a>", self.a.released)
+        self.label.bind("<KeyRelease-s>", self.s.released)
+        self.label.bind("<KeyRelease-d>", self.d.released)
+        self.label.bind("<KeyRelease-x>", self.x.released)
+        # give keyboard focus to the label by default, and whenever
+        # the user clicks on it
+        self.label.focus_set()
+        self.label.bind("<1>", lambda event: self.label.focus_set())
+        self.label.grid(column = 1, row = 5)
+
+    def on_shift(self,event):
+        global shift
+        shift = 1
+    def off_shift(self, event):
+        global shift
+        shift = 0
+    def on_w(self, event):
+        self.label.configure(text="Forward")
+        if dm1:
+            driving(1)
+        elif dm2:
+            time.sleep(dm2delay)
+            driving(1)
+    def off_w(self, event):
+        driving(15)
+    def on_a(self, event):
+        self.label.configure(text="Left")
+        if dm1:
+            driving(3)
+        elif dm2:
+            time.sleep(2)
+            driving(3)
+    def off_a(self, event):
+        driving(15)
+
+    def on_s(self, event):
+        self.label.configure(text="Backward")
+        if dm1:
+            driving(2)
+        elif dm2:
+            time.sleep(2)
+            driving(2)
+    def off_s(self, event):
+        driving(15)
+
+    def on_d(self, event):
+        self.label.configure(text="Right")
+        if dm1:
+            driving(4)
+        elif dm2:
+            time.sleep(2)
+            driving(4)
+    def off_d(self, event):
+        driving(15)
+
+    def on_x(self, event):
+        driving(0)
+    def off_x(self, event):
+        global shift
+        global w
+        shift = 0
+        w = 0
+
+    def on_wasd(self, event):
+        self.label.configure(text="last key pressed: " + event.keysym)
+
 
 class dm2Page(tk.Frame):
     def __init__(self, parent, controller):
@@ -346,8 +346,8 @@ class dm2Page(tk.Frame):
         self.exitBtn()
         self.mainMenuBtn(controller)
 
-        #startCam()
-        #dm2()
+        startCam()
+        dm2()
 
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
@@ -358,7 +358,7 @@ class dm2Page(tk.Frame):
         self.btnMM.grid(column = 2, row = 2)
 
     def swKill(self):
-        #endCam()
+        endCam()
         kill()
 
 
@@ -372,8 +372,8 @@ class dm3Page(tk.Frame):
         self.exitBtn()
         self.mainMenuBtn(controller)
 
-        #startCam()
-        #dm2()
+        startCam()
+        dm2()
 
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
@@ -384,7 +384,7 @@ class dm3Page(tk.Frame):
         self.btnMM.grid(column = 2, row = 2)
 
     def swKill(self):
-        #endCam()
+        endCam()
         kill()
 
 #Reading GPS position. do not use for now
