@@ -27,6 +27,12 @@ duino_address = 0x04
 
 LARGE_FONT= ("Verdana", 12)
 
+#Drive constants
+w = 0
+s = 0
+shift = 0
+dm2delay = 2
+
 #==========================================================
 #Functions
 
@@ -144,62 +150,86 @@ def setHeading(loc, goal):
 class gui(tk.Tk):
     def keyBind(self):
         self.label = tk.Label(self, text="Key Press:  ", width=20)
-        self.debouncer = Debouncer(self.on_w,self.off_w)
-        self.label.bind("<w>", self.on_w)
-        self.label.bind("<a>", self.on_a)
-        self.label.bind("<s>", self.on_s)
-        self.label.bind("<d>", self.on_d)
-        self.label.bind("<x>", self.on_x)
-        self.label.bind("<KeyRelease-w>", self.off_w)
-        self.label.bind("<KeyRelease-a>", self.off_a)
-        #self.label.bind("<KeyRelease-s>", self.off_s)
-        #self.label.bind("<KeyRelease-d>", self.off_d)
+ 
+        self.shift = Debouncer(self.on_shift,self.off_shift)
+        self.w = Debouncer(self.on_w,self.off_w)
+        self.a = Debouncer(self.on_a,self.off_a)
+        self.s = Debouncer(self.on_s,self.off_s)
+        self.d = Debouncer(self.on_d,self.off_d)
+        self.x = Debouncer(self.on_x,self.off_x)
+
+        self.label.bind("<Shift_L>", self.shift.released)
+        self.label.bind("<w>", self.w.pressed)
+        self.label.bind("<a>", self.a.pressed)
+        self.label.bind("<s>", self.s.pressed)
+        self.label.bind("<d>", self.d.pressed)
+        self.label.bind("<x>", self.x.pressed)
+        
+        self.label.bind("<KeyRelease-Shift_L>", self.shift.released)
+        self.label.bind("<KeyRelease-w>", self.w.released)
+        self.label.bind("<KeyRelease-a>", self.a.released)
+        self.label.bind("<KeyRelease-s>", self.s.released)
+        self.label.bind("<KeyRelease-d>", self.d.released)
+        self.label.bind("<KeyRelease-x>", self.x.released)        
         # give keyboard focus to the label by default, and whenever
         # the user clicks on it
         self.label.focus_set()
         self.label.bind("<1>", lambda event: self.label.focus_set())
         self.label.grid(column = 1, row = 5)
 
+    def on_shift(self,event):
+        global shift
+        shift = 1
+    def off_shift(self, event):
+        global shift
+        shift = 0
     def on_w(self, event):
         self.label.configure(text="Forward")
         if dm1:
-            driving(2)
-            self.after(20)
+            driving(1)
         elif dm2:
-            time.sleep(2)
-            driving(2)
+            time.sleep(dm2delay)
+            driving(1)   
     def off_w(self, event):
-        driving(6)
+        driving(15)
     def on_a(self, event):
         self.label.configure(text="Left")
         if dm1:
+            driving(3)
+        elif dm2:
+            time.sleep(2)
+            driving(3)
+    def off_a(self, event):
+        driving(15)
+        
+    def on_s(self, event):
+        self.label.configure(text="Backward")
+        if dm1:
+            driving(2)
+        elif dm2:
+            time.sleep(2)
+            driving(2)
+    def off_s(self, event):
+        driving(15)
+        
+    def on_d(self, event):
+        self.label.configure(text="Right")
+        if dm1:
             driving(4)
         elif dm2:
             time.sleep(2)
             driving(4)
-    def off_a(self, event):
-        driving(6)
-    def on_s(self, event):
-        self.label.configure(text="Backward")
-        if dm1:
-            driving(3)
-        elif dm2:
-            time.sleep(7)
-            driving(3)
-    def off_s(self, event):
-        driving(6)
-    def on_d(self, event):
-        self.label.configure(text="Right")
-        if dm1:
-            driving(5)
-        elif dm2:
-            time.sleep(7)
-            driving(5)
     def off_d(self, event):
-        driving(6)
+        driving(15)
+        
     def on_x(self, event):
-        driving(6)
-
+        driving(0)
+    def off_x(self, event):
+        global shift
+        global w
+        shift = 0
+        w = 0
+        
     def on_wasd(self, event):
         self.label.configure(text="last key pressed: " + event.keysym)
 
