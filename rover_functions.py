@@ -39,7 +39,7 @@ dm2delay = 2
 def standby():
     #use as a pause between commands for debugging.
     #can also be used for drive mode 2
-    time.sleep(5)
+    time.sleep(1)
     #return True
 
 def getRange():
@@ -48,36 +48,43 @@ def getRange():
    return tof_sensor.range
 
 def driving(mode):
+    #sends packet to arduino
     bus.write_byte(duino_address,mode)
+    #requests to get packet back from arduino
     readNum()
+    #pause, may change later
     time.sleep(0.5)
+    
 
 def readNum():
+    #asks the arduino to send a packet
     num = bus.read_byte(duino_address)
     print("RPI Received", num)
     return num
 
 def kill():
     #This will be the software kill
-    driving(6)
+    #driving(15) is the kill switch
+    driving(15)
     #DM = 0
     #stop all movement
     #exit the program
     exit()
 
 def startCam():
+    #in this code the rover will open a camera preview
     camera.start_preview(fullscreen=False,window=(0,0,200,200)) #xywh
 
 def endCam():
+    #this closes the camerai preview
     camera.stop_preview()
 
 def dm1():
     #Drive mode 1 is manual control (WASD/Controller)
     print("Drive Mode 1")
-    #Start control GUI
-    #read inputs
-    #make a function that sends inputs to arduino
-    driving(6)
+    #reading controls is done thru the GUI
+    #make sure it intializes to stopped,send 15 packet
+    driving(15)
 
 def dm2():
     #Drive mode 2 is manual control (WASD/Controller) with delay
@@ -86,7 +93,7 @@ def dm2():
     #read inputs
     #standby()
     #make a function that sends inputs to arduino
-    driving(6)
+    driving(15)
 
 def dm3():
     print("Drive Mode 3")
@@ -117,13 +124,15 @@ def findMe():
 def checkObs():
     rangeMin = 30 #Rover allowed no closer than this (mm)
     rangeAvoid = 100
-    rangeRead = 0#getRange() #Reads the LIDAR
+    rangeRead = getRange() #Reads the LIDAR
     #If there's an obstruction within range, return true
     if (rangeRead <= rangeMin):
         print("WARNING: Too Close")
+        avoidObs(2)
         return 2
     elif(rangeRead <= rangeAvoid):
         print("Obstacle Detected. Begin Reroute Procedure")
+        avoidObs(1)
         return 1
     else:
         print("No obstacles")
@@ -134,11 +143,17 @@ def avoidObs(severity):
     print("avoiding obstacles")
 
     if(severity == 2):
-        driving(6) #stop the rover, then back it up
+        driving(15) #stop the rover, then back it up
+        #back & right
+        driving(15) #change to correct value - look up
+        standby()
+        checkObs()
 
     elif(severity == 1):
         #slow down, start turning
         driving(4) # forward left
+        standby()
+        checkObs()
 
     else:
         print("no obstacles to avoid")
@@ -186,6 +201,7 @@ class mainMenu(tk.Frame):
         self.grid()
         self.exitBtn()
         self.rstBtn()
+        self.startBtn()
         self.dmOneBtn(controller)
         self.dmTwoBtn(controller)
         self.dmThreeBtn(controller)
@@ -196,7 +212,7 @@ class mainMenu(tk.Frame):
     def rstBtn(self): # restarts main menu
         self.QUIT = tk.Button(self, text='Restart', command = self.resetSwitch)
         self.QUIT.grid(column = 2, row = 2)
-
+   
     def dmOneBtn(self, controller): #bring up drive mode 1
         self.btn1 = tk.Button(self, text = 'Drive Mode 1', command =lambda: controller.show_new_window(dm1Page))
         self.btn1.grid(column = 1, row = 3)
@@ -233,8 +249,9 @@ class dm1Page(tk.Frame):
         self.grid()
         self.exitBtn()
         self.mainMenuBtn(controller)
+        self.startBtn() #controls wont work until this is pressed
         startCam()
-        dm1()
+        #dm1()
         #move this to control modes:
         self.keyBind()
 
@@ -249,6 +266,13 @@ class dm1Page(tk.Frame):
     def swKill(self):
         endCam()
         kill()
+
+    def startBtn(self): #makes stat button
+        self.start = tk.Button(self, text = 'START', command = self.startCommand)
+        self.start.grid(column = 1, row = 3)
+
+    def startCommand():
+        dm1()
 
     def keyBind(self):
         self.label = tk.Label(self, text="Key Press:  ", width=20)
