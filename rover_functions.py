@@ -1,6 +1,7 @@
 import serial
 import time
-#ser = serial.Serial('/dev/ttyACM0', 9600)
+ser = serial.Serial('/dev/ttyACM0', 9600)
+
 import tkinter as tk
 import cv2
 from picamera import PiCamera
@@ -50,11 +51,11 @@ def getRange():
 def driving(mode):
     #sends packet to arduino
     bus.write_byte(duino_address,mode)
+    time.sleep(0.5)
     #requests to get packet back from arduino
     readNum()
     #pause, may change later
-    time.sleep(0.5)
-    
+    #time.sleep(0.5)
 
 def readNum():
     #asks the arduino to send a packet
@@ -64,8 +65,8 @@ def readNum():
 
 def kill():
     #This will be the software kill
-    #driving(15) is the kill switch
-    driving(15)
+    #driving(0) is kill switch
+    driving(0)
     #DM = 0
     #stop all movement
     #exit the program
@@ -83,8 +84,8 @@ def dm1():
     #Drive mode 1 is manual control (WASD/Controller)
     print("Drive Mode 1")
     #reading controls is done thru the GUI
-    #make sure it intializes to stopped,send 15 packet
-    driving(15)
+    #make sure it intializes to stopped,send 0 packet
+    driving(0)
 
 def dm2():
     #Drive mode 2 is manual control (WASD/Controller) with delay
@@ -93,9 +94,10 @@ def dm2():
     #read inputs
     #standby()
     #make a function that sends inputs to arduino
-    driving(15)
+    driving(0)
 
 def dm3():
+    driving(0)
     print("Drive Mode 3")
     # goal_loc = 1
     # count = 1
@@ -143,9 +145,9 @@ def avoidObs(severity):
     print("avoiding obstacles")
 
     if(severity == 2):
-        driving(15) #stop the rover, then back it up
+        driving(0) #stop the rover, then back it up
         #back & right
-        driving(15) #change to correct value - look up
+        driving(0) #change to correct value - look up
         standby()
         checkObs()
 
@@ -201,7 +203,7 @@ class mainMenu(tk.Frame):
         self.grid()
         self.exitBtn()
         self.rstBtn()
-        self.startBtn()
+        #self.startBtn()
         self.dmOneBtn(controller)
         self.dmTwoBtn(controller)
         self.dmThreeBtn(controller)
@@ -212,7 +214,7 @@ class mainMenu(tk.Frame):
     def rstBtn(self): # restarts main menu
         self.QUIT = tk.Button(self, text='Restart', command = self.resetSwitch)
         self.QUIT.grid(column = 2, row = 2)
-   
+
     def dmOneBtn(self, controller): #bring up drive mode 1
         self.btn1 = tk.Button(self, text = 'Drive Mode 1', command =lambda: controller.show_new_window(dm1Page))
         self.btn1.grid(column = 1, row = 3)
@@ -250,7 +252,7 @@ class dm1Page(tk.Frame):
         self.exitBtn()
         self.mainMenuBtn(controller)
         self.startBtn() #controls wont work until this is pressed
-        startCam()
+        #startCam()
         #dm1()
         #move this to control modes:
         self.keyBind()
@@ -271,7 +273,8 @@ class dm1Page(tk.Frame):
         self.start = tk.Button(self, text = 'START', command = self.startCommand)
         self.start.grid(column = 1, row = 3)
 
-    def startCommand():
+    def startCommand(self):
+        startCam()
         dm1()
 
     def keyBind(self):
@@ -318,7 +321,7 @@ class dm1Page(tk.Frame):
             driving(1)
     def off_w(self, event):
         print("off w")
-        driving(15)
+        driving(0)
     def on_a(self, event):
         self.label.configure(text="Left")
         if dm1:
@@ -371,8 +374,8 @@ class dm2Page(tk.Frame):
         self.exitBtn()
         self.mainMenuBtn(controller)
 
-        startCam()
-        dm2()
+        #startCam()
+        #dm2()
 
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
@@ -397,8 +400,8 @@ class dm3Page(tk.Frame):
         self.exitBtn()
         self.mainMenuBtn(controller)
 
-        startCam()
-        dm2()
+        #startCam()
+        #dm2()
 
     def exitBtn(self):
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
