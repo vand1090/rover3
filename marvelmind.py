@@ -8,7 +8,7 @@
 #   adr - address of mobile beacon (from Dashboard) for data filtering. If it is None, every read data will be appended to buffer.
 #       default: None
 #
-#   tty - serial port device name (physical or USB/virtual). It should be provided as an argument: 
+#   tty - serial port device name (physical or USB/virtual). It should be provided as an argument:
 #       /dev/ttyACM0 - typical for Linux / Raspberry Pi
 #       /dev/tty.usbmodem1451 - typical for Mac OS X
 #
@@ -20,7 +20,7 @@
 #
 #   valuesUltrasoundPosition - buffer of measurements
 #
-#   debug - debug flag which activate console output    
+#   debug - debug flag which activate console output
 #       default: False
 #
 #   pause - pause flag. If True, class would not read serial data
@@ -30,7 +30,7 @@
 #
 ### Methods:
 #
-#   __init__ (self, tty="/dev/ttyACM0", baud=9600, maxvaluescount=3, debug=False) 
+#   __init__ (self, tty="/dev/ttyACM0", baud=9600, maxvaluescount=3, debug=False)
 #       constructor
 #
 #   print_position(self)
@@ -81,7 +81,7 @@ class MarvelmindHedge (Thread):
 
         self.valuesUltrasoundPosition = collections.deque([[0]*6]*maxvaluescount, maxlen=maxvaluescount) # ultrasound position buffer
         self.recieveUltrasoundPositionCallback = recieveUltrasoundPositionCallback
-        
+
         self.valuesImuRawData = collections.deque([[0]*10]*maxvaluescount, maxlen=maxvaluescount) # raw imu data buffer
         self.recieveImuRawDataCallback = recieveImuRawDataCallback
 
@@ -94,9 +94,9 @@ class MarvelmindHedge (Thread):
 
         self.pause = False
         self.terminationRequired = False
-        
+
         self.distancesUpdated= False;
-        
+
         self.adr = adr
         self.serialPort = None
         Thread.__init__(self)
@@ -109,19 +109,20 @@ class MarvelmindHedge (Thread):
 
     def position(self):
         return list(self.valuesUltrasoundPosition)[-1];
-           
-    def print_distances(self): 
-		self.distancesUpdated= False
-		print ("Distances: B{:d}:{:.3f}, B{:d}:{:.3f}, B{:d}:{:.3f}, B{:d}:{:.3f}   at time T: {:.2f}".format(self.distances()[1], self.distances()[2], self.distances()[3], self.distances()[4], self.distances()[5], self.distances()[6], self.distances()[7], self.distances()[8], self.distances()[9]/1000.0))
-        
+
+    def print_distances(self):
+        self.distancesUpdated = False
+
+        print ("Distances: B{:d}:{:.3f}, B{:d}:{:.3f}, B{:d}:{:.3f}, B{:d}:{:.3f}   at time T: {:.2f}".format(self.distances()[1], self.distances()[2], self.distances()[3], self.distances()[4], self.distances()[5], self.distances()[6], self.distances()[7], self.distances()[8], self.distances()[9]/1000.0))
+
     def distances(self):
         return list(self.valuesUltrasoundRawData)[-1];
-    
+
     def stop(self):
         self.terminationRequired = True
         print ("stopping")
 
-    def run(self):      
+    def run(self):
         while (not self.terminationRequired):
             if (not self.pause):
                 try:
@@ -132,7 +133,7 @@ class MarvelmindHedge (Thread):
                         self._bufferSerialDeque.append(readChar)
                         readChar = self.serialPort.read(1)
                         bufferList = list(self._bufferSerialDeque)
-                        
+
                         strbuf = (b''.join(bufferList))
 
                         pktHdrOffset = strbuf.find(b'\xff\x47')
@@ -240,8 +241,8 @@ class MarvelmindHedge (Thread):
                         print ('\n*** ERROR: serial port error (possibly beacon is reset, powered down or in sleep mode). Restarting reading process...')
                     self.serialPort = None
                     time.sleep(1)
-            else: 
+            else:
                 time.sleep(1)
-    
+
         if (self.serialPort is not None):
             self.serialPort.close()

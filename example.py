@@ -11,7 +11,7 @@ def main():
             # print (hedge.position()) # get last position and print
             hedge.print_position()
             if (hedge.distancesUpdated):
-				hedge.print_distances()
+                hedge.print_distances()
         except KeyboardInterrupt:
             hedge.stop()  # stop and close serial port
             sys.exit()
