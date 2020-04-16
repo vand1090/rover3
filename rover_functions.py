@@ -28,7 +28,7 @@ restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
 bus = smbus.SMBus(1)
 tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
-#compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
+compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
 duino_address = 0x04
 #hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
 #hedge.start() # start thread
@@ -113,6 +113,12 @@ def dm3(goalX, goalY):
     driving(0)
     print("Drive Mode 3")
 
+    #get starting poisition
+    findMe()
+    #can use these to zero out 
+    x_mod = currentX
+    y_mod = currentY
+
     while(destinationReached == False):
         findMe()
         if(goalX == currentX and goalY == currentY):
@@ -127,20 +133,6 @@ def dm3(goalX, goalY):
 
         hypotenuse = calcDist(deltaX, deltaY)
         driving(1)
-
-
-        # goal_loc = 1
-    # count = 1
-    # drive = True
-    # while(drive):
-    #     loc = findMe()
-    #     setHeading(loc, goal_loc)
-    #     if(checkObs() == 2):
-    #         avoidObs(2)
-    #     count = count+1
-    #     if(count == 10):
-    #         drive=False
-
     #Drive mode 3 is automatic mode
     #auto mode
     #read in instructions
@@ -148,6 +140,85 @@ def dm3(goalX, goalY):
     #write function to check environment
 #==========================================================
 #Autonomous mode functions
+def calibrate():
+    #use this function to correlate N,S,E,W with +/- X and Y
+    print("Calibrating")
+    # Need to make transformation matrix 
+    # Drive in a square - north, then east, then south then west
+
+    # turn to point North
+    currentDir = get_heading(compass)
+    isNorth(currentDir)
+    while(isNorth(currentDir) == False):
+
+        #if some version of east, turn left
+        if(currentDir < 180):
+            driving(3)
+        #else if some version of west, turn right
+        else:
+            driving(4)
+        standby()
+        currentDir = get_heading(compass)
+    driving(15)
+    #now the rover is pointing North
+    #get starting position for calibrations
+    findMe()
+    x_cal_1 = currentX
+    y_cal_1 = currentY
+
+    #drive forward
+    driving(1)
+    standby()
+    driving(0)
+
+    #get end position
+    findMe()
+    x_cal_2 = currentX
+    y_cal_2 = currentY
+
+    #calculate delta x and y
+
+    #turn to go east
+    while(isNorth(currentDir) == False):
+
+        #if some version of south turn left
+        if(currentDir < 360  and currentDir > 180):
+            driving(3)
+        #else if some version of west, turn right
+        else:
+            driving(4)
+        standby()
+        currentDir = get_heading(compass)
+    driving(15)
+    #now the rover is pointing East
+    findMe()
+    x_cal_3 = currentX
+    y_cal_3 = currentY
+
+    #drive forward
+    driving(1)
+    standby()
+    driving(0)
+
+    #get end position
+    findMe()
+    x_cal_4 = currentX
+    y_cal_4 = currentY
+
+
+def isNorth(currentDir):
+    #put in a +- buffer on 0 degrees
+    if(currentDir == 0):
+        return True
+    else:
+        return False
+def isEast(currentDir):
+    #put in a +- buffer on 90 degrees
+    if(currentDir == 90):
+        return True
+    else:
+        return False
+
 def findMe():
     #this function finds the rover in the IPS system
     #hedge.print_position()
@@ -199,7 +270,7 @@ def calcDist(deltaX, deltaY):
 
 # compass code
 def vector_2_degrees(x, y):
-    angle = degrees(atan2(y, x))
+    angle = math.degrees(math.atan2(y, x))
     if angle < 0:
         angle += 360
     return angle
@@ -235,8 +306,8 @@ class gui(tk.Tk):
         frame = self.windows[cont]
         frame.tkraise()
 
-
 #this is the first thing that will open
+#children of GUI
 class mainMenu(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
@@ -283,7 +354,6 @@ class mainMenu(tk.Frame):
         endCam()
         self.destroy
         self.__init__
-
 
 #here begins the gui for drive mode 1. Implements a keylistener
 class dm1Page(tk.Frame):
@@ -407,7 +477,6 @@ class dm1Page(tk.Frame):
     def on_wasd(self, event):
         self.label.configure(text="last key pressed: " + event.keysym)
 
-
 class dm2Page(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -433,8 +502,9 @@ class dm2Page(tk.Frame):
         endCam()
         kill()
 
-
+#Semi auto drive mode
 class dm3Page(tk.Frame):
+    #initialize semi auto window
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Drive Mode 3", font=LARGE_FONT)
@@ -475,6 +545,7 @@ class dm3Page(tk.Frame):
         self.inYlabel = tk.Label(self, text="Input Y Goal", font=LARGE_FONT)
         self.inYlabel.grid(column=1, row = 5)
 
+    #general software stuff
     def swKill(self):
         endCam()
         kill()
@@ -483,8 +554,8 @@ class dm3Page(tk.Frame):
         self.start.grid(column = 1, row = 3)
     # this is when auto mode starts
     def startCommand(self):
-        goalX = self.inputXField.get()
-        goalY = self.inputYField.get()
+        goalX = float(self.inputXField.get())
+        goalY = float(self.inputYField.get())
         print(goalX)
         print(goalY)
         startCam()
