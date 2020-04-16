@@ -151,14 +151,22 @@ void fastReverseRight(){
   analogWrite(FOR_PWM_LEFT, stopSpeed);
   analogWrite(REV_PWM_LEFT, goFastSpeed);
 }
+void ForwardLeft(){
+  
+}
+void ForwardRight(){
+}
 void slowStop(){
-  for (speed = goNormalSpeed; speed <= 0; i--)
-    if(commandReceived==0)//if stop key is pressed
+  for (speed = goNormalSpeed; speed >= 0; speed--){
+    if(commandReceived==0){//if stop key is pressed
       break;
-    analogWrite(FOR_PWM_RIGHT, speed);
-    analogWrite(REV_PWM_RIGHT, stopSpeed);
-    analogWrite(FOR_PWM_LEFT, speed);
-    analogWrite(REV_PWM_LEFT, stopSpeed); 
+    }
+      analogWrite(FOR_PWM_RIGHT, speed);
+      analogWrite(REV_PWM_RIGHT, stopSpeed);
+      analogWrite(FOR_PWM_LEFT, speed);
+      analogWrite(REV_PWM_LEFT, stopSpeed);
+      delay(500);
+  }
 }
 void receiveData(int byteCount){
   while(Wire.available()){
