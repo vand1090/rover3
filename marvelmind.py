@@ -95,7 +95,7 @@ class MarvelmindHedge (Thread):
         self.pause = False
         self.terminationRequired = False
 
-        self.distancesUpdated= False;
+        self.distancesUpdated = False
 
         self.adr = adr
         self.serialPort = None

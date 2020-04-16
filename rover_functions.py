@@ -1,5 +1,6 @@
 import serial
 import time
+import math
 ser = serial.Serial('/dev/ttyACM0', 9600)
 
 import tkinter as tk
@@ -10,6 +11,9 @@ import smbus
 import board
 import busio
 import adafruit_vl53l0x
+import adafruit_lsm303dlh_mag
+
+from marvelmind import MarvelmindHedge
 from debouncer import Debouncer
 #from keybinder import KeyBinder
 #==========================================================
@@ -17,22 +21,31 @@ from debouncer import Debouncer
 # Author: Alexander Vanden Bussche
 # Spring 2020
 #==========================================================
-#constants
+#in itialize sensors and buses
 camera = PiCamera()
 drive = 6
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
 bus = smbus.SMBus(1)
 tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
+compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
 duino_address = 0x04
-
+hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
+hedge.start() # start thread
 LARGE_FONT= ("Verdana", 12)
 
-#Drive constants
+#Direct modes constants
 w = 0
 s = 0
 shift = 0
 dm2delay = 2
+
+#semi-auto vars, do not mess with
+currentPos = []
+currentX = 0
+currentY = 0
+currentZ = 0
+drive = True
 
 #==========================================================
 #Functions
@@ -96,10 +109,28 @@ def dm2():
     #make a function that sends inputs to arduino
     driving(0)
 
-def dm3():
+def dm3(goalX, goalY):
     driving(0)
     print("Drive Mode 3")
-    # goal_loc = 1
+
+    while(drive):
+        findMe()
+        if(goalX == currentX and goalY == currentY):
+            print('Success')
+            drive = False
+            driving(0)
+            break
+        
+        if(currentX)
+
+        deltaX = abs(currentX-goalX)
+        deltaY = abs(currentY-goalY)
+
+        hypotenuse = calcDist(deltaX, deltaY)
+        driving(1)
+
+
+        # goal_loc = 1
     # count = 1
     # drive = True
     # while(drive):
@@ -120,8 +151,11 @@ def dm3():
 #Autonomous mode functions
 def findMe():
     #this function finds the rover in the IPS system
-    #Reads via spi bus
-    print("Searching")
+    hedge.print_position()
+    currentPos = hedge.position()
+    currentX = currentPos[0]
+    currentY = currentPos[1]
+    currentZ = currentPos[2]
 
 def checkObs():
     rangeMin = 30 #Rover allowed no closer than this (mm)
@@ -160,10 +194,21 @@ def avoidObs(severity):
     else:
         print("no obstacles to avoid")
 
+# calc total distance to target
+def calcDist(deltaX, deltaY):
+    return math.sqrt(math.pow(deltaX, 2) + math.pow(deltaY,2))
 
-def setHeading(loc, goal):
-    print("set heading")
+# compass code
+def vector_2_degrees(x, y):
+    angle = degrees(atan2(y, x))
+    if angle < 0:
+        angle += 360
+    return angle
 
+
+def get_heading(_sensor):
+    magnet_x, magnet_y, _ = _sensor.magnetic
+    return vector_2_degrees(magnet_x, magnet_y)
 #===========================================================================
 #GUI class
 class gui(tk.Tk):
@@ -395,25 +440,55 @@ class dm3Page(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Drive Mode 3", font=LARGE_FONT)
         label.grid(column=1, row=1)
-
+        #populate the window
         self.grid()
         self.exitBtn()
         self.mainMenuBtn(controller)
+        self.startBtn()
+        self.inputXLabel()
+        self.inputXGoal(controller)
+        self.inputYLabel()
+        self.inputYGoal(controller)
 
         #startCam()
-        #dm2()
+        #dm3()
 
-    def exitBtn(self):
+    #buttons, labels, inputs
+    def exitBtn(self): #kills the rover
         self.QUIT = tk.Button(self, text='Quit', command = self.swKill)
         self.QUIT.grid(column = 1, row = 2)
 
-    def mainMenuBtn(self, controller):
+    def mainMenuBtn(self, controller): #main menu
         self.btnMM = tk.Button(self, text = 'Main Menu', command =lambda: controller.show_new_window(mainMenu))
         self.btnMM.grid(column = 2, row = 2)
+    #get x goal
+    def inputXGoal(self, controller):
+        self.inputXField = tk.Entry(self)
+        self.inputYField.grid(column = 2, row = 2)
+    def inputXLabel(self):
+        self.inXlabel = tk.Label(self, text="Input X Goal", font=LARGE_FONT)
+        self.inXlabel.grid(column=1, row = 2)
+    #get y goal
+    def inputYGoal(self, controller):
+        self.inputYField = tk.Entry(self)
+        self.inputYField.grid(column = 2, row = 3)
+    def inputYLabel(self):
+        self.inYlabel = tk.Label(self, text="Input Y Goal", font=LARGE_FONT)
+        self.inYlabel.grid(column=1, row = 3)
+
 
     def swKill(self):
         endCam()
         kill()
+    def startBtn(self): #makes stat button
+        self.start = tk.Button(self, text = 'START', command = self.startCommand)
+        self.start.grid(column = 1, row = 3)
+    # this is when auto mode starts
+    def startCommand(self):
+        goalX = self.inputXField.get()
+        goalY = self.inputYField.get()
+        startCam()
+        dm3(goalX, goalY)
 
 #Reading GPS position. do not use for now
 #===================================================================
