@@ -1,7 +1,7 @@
 import serial
 import time
 import math
-ser = serial.Serial('/dev/ttyACM0', 9600)
+#ser = serial.Serial('/dev/ttyACM0', 9600)
 
 import tkinter as tk
 import cv2
@@ -23,15 +23,15 @@ from debouncer import Debouncer
 #==========================================================
 #in itialize sensors and buses
 camera = PiCamera()
-drive = 6
+#drive = 6
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
 bus = smbus.SMBus(1)
 tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
-compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
+#compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
 duino_address = 0x04
-hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
-hedge.start() # start thread
+#hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
+#hedge.start() # start thread
 LARGE_FONT= ("Verdana", 12)
 
 #Direct modes constants
@@ -45,7 +45,7 @@ currentPos = []
 currentX = 0
 currentY = 0
 currentZ = 0
-drive = True
+destinationReached = False
 
 #==========================================================
 #Functions
@@ -113,15 +113,14 @@ def dm3(goalX, goalY):
     driving(0)
     print("Drive Mode 3")
 
-    while(drive):
+    while(destinationReached == False):
         findMe()
         if(goalX == currentX and goalY == currentY):
             print('Success')
             drive = False
             driving(0)
             break
-        
-        if(currentX)
+
 
         deltaX = abs(currentX-goalX)
         deltaY = abs(currentY-goalY)
@@ -151,8 +150,8 @@ def dm3(goalX, goalY):
 #Autonomous mode functions
 def findMe():
     #this function finds the rover in the IPS system
-    hedge.print_position()
-    currentPos = hedge.position()
+    #hedge.print_position()
+    currentPos =[0, 0, 0] # hedge.position()
     currentX = currentPos[0]
     currentY = currentPos[1]
     currentZ = currentPos[2]
@@ -464,18 +463,17 @@ class dm3Page(tk.Frame):
     #get x goal
     def inputXGoal(self, controller):
         self.inputXField = tk.Entry(self)
-        self.inputYField.grid(column = 2, row = 2)
+        self.inputXField.grid(column = 2, row = 4)
     def inputXLabel(self):
         self.inXlabel = tk.Label(self, text="Input X Goal", font=LARGE_FONT)
-        self.inXlabel.grid(column=1, row = 2)
+        self.inXlabel.grid(column=1, row = 4)
     #get y goal
     def inputYGoal(self, controller):
         self.inputYField = tk.Entry(self)
-        self.inputYField.grid(column = 2, row = 3)
+        self.inputYField.grid(column = 2, row = 5)
     def inputYLabel(self):
         self.inYlabel = tk.Label(self, text="Input Y Goal", font=LARGE_FONT)
-        self.inYlabel.grid(column=1, row = 3)
-
+        self.inYlabel.grid(column=1, row = 5)
 
     def swKill(self):
         endCam()
@@ -487,6 +485,8 @@ class dm3Page(tk.Frame):
     def startCommand(self):
         goalX = self.inputXField.get()
         goalY = self.inputYField.get()
+        print(goalX)
+        print(goalY)
         startCam()
         dm3(goalX, goalY)
 
