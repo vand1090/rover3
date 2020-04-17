@@ -46,7 +46,7 @@ currentX = 0
 currentY = 0
 currentZ = 0
 destinationReached = False
-
+theta_transform = 0
 #==========================================================
 #Functions
 
@@ -176,34 +176,40 @@ def calibrate():
     x_cal_2 = currentX
     y_cal_2 = currentY
 
-    #calculate delta x and y
+    #find theta in XY space
+    delX = x_cal_2-x_cal_1
+    delY = y_cal_2-y_cal_1
+    hyp = calcDist(delX, delY)
+    thetaXYspace = math.degrees(math.asin(delY/hyp))
 
-    #turn to go east
-    while(isNorth(currentDir) == False):
+    theta_transform = thetaXYspace-get_heading(compass)
 
-        #if some version of south turn left
-        if(currentDir < 360  and currentDir > 180):
-            driving(3)
-        #else if some version of west, turn right
-        else:
-            driving(4)
-        standby()
-        currentDir = get_heading(compass)
-    driving(15)
-    #now the rover is pointing East
-    findMe()
-    x_cal_3 = currentX
-    y_cal_3 = currentY
+    # #turn to go east
+    # while(isEast(currentDir) == False):
 
-    #drive forward
-    driving(1)
-    standby()
-    driving(0)
+    #     #if some version of south turn left
+    #     if(currentDir < 360  and currentDir > 180):
+    #         driving(3)
+    #     #else if some version of west, turn right
+    #     else:
+    #         driving(4)
+    #     standby()
+    #     currentDir = get_heading(compass)
+    # driving(15)
+    # #now the rover is pointing East
+    # findMe()
+    # x_cal_3 = currentX
+    # y_cal_3 = currentY
 
-    #get end position
-    findMe()
-    x_cal_4 = currentX
-    y_cal_4 = currentY
+    # #drive forward
+    # driving(1)
+    # standby()
+    # driving(0)
+
+    # #get end position
+    # findMe()
+    # x_cal_4 = currentX
+    # y_cal_4 = currentY
 
 
 def isNorth(currentDir):
