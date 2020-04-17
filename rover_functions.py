@@ -27,7 +27,8 @@ camera = PiCamera()
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
 bus = smbus.SMBus(1)
-tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
+#temporarily unplugged
+#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
 compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
 duino_address = 0x04
 #hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
@@ -115,7 +116,7 @@ def dm3(goalX, goalY):
 
     #get starting poisition
     findMe()
-    #can use these to zero out 
+    #can use these to zero out
     x_mod = currentX
     y_mod = currentY
 
@@ -143,7 +144,7 @@ def dm3(goalX, goalY):
 def calibrate():
     #use this function to correlate N,S,E,W with +/- X and Y
     print("Calibrating")
-    # Need to make transformation matrix 
+    # Need to make transformation matrix
     # Drive in a square - north, then east, then south then west
 
     # turn to point North
@@ -213,8 +214,8 @@ def calibrate():
 
 
 def isNorth(currentDir):
-    #put in a +- buffer on 0 degrees
-    if(currentDir == 0):
+    #put in a +- buffer of 2 degrees
+    if(currentDir >358 or currentDir < 2:
         return True
     else:
         return False
