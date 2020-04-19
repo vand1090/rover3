@@ -51,10 +51,10 @@ theta_transform = 0
 #==========================================================
 #Functions
 
-def standby():
+def standby(num):
     #use as a pause between commands for debugging.
     #can also be used for drive mode 2
-    time.sleep(1)
+    time.sleep(num)
     #return True
 
 def getRange():
@@ -158,7 +158,7 @@ def calibrate():
         #else if some version of west, turn right
         else:
             driving(4)
-        standby()
+        standby(1)
         currentDir = get_heading(compass)
         print(currentDir)
     driving(15)
@@ -170,7 +170,7 @@ def calibrate():
 
     #drive forward
     driving(1)
-    standby()
+    standby(3)
     driving(0)
 
     #get end position
@@ -181,10 +181,13 @@ def calibrate():
     #find theta in XY space
     delX = x_cal_2-x_cal_1
     delY = y_cal_2-y_cal_1
-    hyp = calcDist(delX, delY)
+    hyp = 1#calcDist(delX, delY)
     thetaXYspace = math.degrees(math.asin(delY/hyp))
 
     theta_transform = thetaXYspace-get_heading(compass)
+    driving(2)
+    standby(3)
+    driving(0)
 
     # #turn to go east
     # while(isEast(currentDir) == False):
@@ -216,7 +219,7 @@ def calibrate():
 
 def isNorth(currentDir):
     #put in a +- buffer of 2 degrees
-    if(currentDir >358 or currentDir < 2):
+    if(currentDir >100 and currentDir < 102):
         return True
     else:
         return False
