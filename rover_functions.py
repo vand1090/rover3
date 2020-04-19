@@ -286,6 +286,9 @@ def vector_2_degrees(x, y):
 
 def get_heading(_sensor):
     magnet_x, magnet_y, _ = _sensor.magnetic
+    #mag_x, mag_y, mag_z = sensor.magnetic
+
+    print('Magnetometer (gauss): ({0:10.3f}, {1:10.3f})'.format(magnet_x, magnet_y))
     return vector_2_degrees(magnet_x, magnet_y)
 #===========================================================================
 #GUI class
