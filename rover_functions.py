@@ -160,6 +160,7 @@ def calibrate():
             driving(4)
         standby()
         currentDir = get_heading(compass)
+        print(currentDir)
     driving(15)
     #now the rover is pointing North
     #get starting position for calibrations
@@ -215,7 +216,7 @@ def calibrate():
 
 def isNorth(currentDir):
     #put in a +- buffer of 2 degrees
-    if(currentDir >358 or currentDir < 2:
+    if(currentDir >358 or currentDir < 2):
         return True
     else:
         return False
@@ -285,6 +286,9 @@ def vector_2_degrees(x, y):
 
 def get_heading(_sensor):
     magnet_x, magnet_y, _ = _sensor.magnetic
+    #mag_x, mag_y, mag_z = sensor.magnetic
+
+    print('Magnetometer (gauss): ({0:10.3f}, {1:10.3f})'.format(magnet_x, magnet_y))
     return vector_2_degrees(magnet_x, magnet_y)
 #===========================================================================
 #GUI class
@@ -442,7 +446,7 @@ class dm1Page(tk.Frame):
             driving(1)
     def off_w(self, event):
         print("off w")
-        driving(0)
+        driving(15)
     def on_a(self, event):
         self.label.configure(text="Left")
         if dm1:
