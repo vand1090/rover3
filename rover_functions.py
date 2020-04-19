@@ -119,6 +119,9 @@ def dm3(goalX, goalY):
     #can use these to zero out
     x_mod = currentX
     y_mod = currentY
+    finishCoords = transformMatrix(goalX, goalY)
+    goalX_trans = finishCoords[0]
+    goalY_trans = finishCoords[1]
 
     while(destinationReached == False):
         findMe()
@@ -141,6 +144,13 @@ def dm3(goalX, goalY):
     #write function to check environment
 #==========================================================
 #Autonomous mode functions
+def transformMatrix(xCoord, yCoord):
+    #starting xy coord
+    start = [xCoord, yCoord]
+    trans_matrix = [math.sin(theta_transform), math.cos(theta_transform), 0],[-1*math.cos(theta_transform), sin(theta_transform), 0], [0,0,1]
+    finishCoords = trans_matrix * start
+    return finishCoords
+
 def calibrate():
     #use this function to correlate N,S,E,W with +/- X and Y
     print("Calibrating")
@@ -184,7 +194,10 @@ def calibrate():
     hyp = 1#calcDist(delX, delY)
     thetaXYspace = math.degrees(math.asin(delY/hyp))
 
+    #this will be used to transform gu=oal location to real spaces
     theta_transform = thetaXYspace-get_heading(compass)
+
+    #go back to starting locations
     driving(2)
     standby(3)
     driving(0)
