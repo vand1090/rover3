@@ -151,12 +151,7 @@ void fastReverseRight(){
   analogWrite(FOR_PWM_LEFT, stopSpeed);
   analogWrite(REV_PWM_LEFT, goFastSpeed);
 }
-void ForwardLeft(){
-  
-}
-void ForwardRight(){
-}
-void slowStop(){
+void slowForwardStop(){
   for (speed = goNormalSpeed; speed >= 0; speed--){
     if(commandReceived==0){//if stop key is pressed
       break;
@@ -168,6 +163,18 @@ void slowStop(){
       delay(500);
   }
 }
+void slowBackwardStop(){
+  for (speed = goNormalSpeed; speed >= 0; speed--){
+    if(commandReceived==0){//if stop key is pressed
+      break;
+    }
+      analogWrite(FOR_PWM_RIGHT, stopSpeed);
+      analogWrite(REV_PWM_RIGHT, speed);
+      analogWrite(FOR_PWM_LEFT, stopSpeed);
+      analogWrite(REV_PWM_LEFT, speed);
+      delay(500);
+}
+
 void receiveData(int byteCount){
   while(Wire.available()){
     commandReceived = Wire.read();
@@ -188,9 +195,8 @@ void receiveData(int byteCount){
       //10 - Fast Forward Right
       //11 - Fast Reverse Left
       //12 - Fast Reverse Right
-      //13 - Stop Forward Left
-      //14 - Stop Forward Right
-      //15 - Slow-stop (Ramp-down of speed instead of instant stop)
+      //13 - Slow-stop Forward
+      //14 - Slow-stop Backward (Ramp-down of speed instead of instant stop)
 
     switch (commandReceived){
       //LED stuff for testing
@@ -243,7 +249,7 @@ void receiveData(int byteCount){
         n=8;
         break;
       case 9:   //Fast Forward Left
-        fastForward();
+        fastForwardLeft();
         n=9;
         break;
       case 10:  //Fast Forward Right
@@ -258,19 +264,13 @@ void receiveData(int byteCount){
         fastReverseRight();
         n=12;
         break;
-      case 13:  //Stop Forward Left
-        stopMotion();
-        ForwardLeft();
+      case 13:  //Slow-stop Forward
+        slowForwardStop();
         n=13;
         break;
-      case 14:  //Stop Forward Right
-        stopMotion();
-        ForwardRight();
+      case 14:  //Slow-stop Backward
+        slowBackwardStop();
         n=14;
-        break;
-      case 15:  //Slow-stop
-        slowStop();
-        n=15;
         break;
       default:
         stopMotion(); 

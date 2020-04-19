@@ -15,6 +15,5 @@ Current Arduino Drive States
 10 - Fast Forward Right
 11 - Fast Reverse Left
 12 - Fast Reverse Right
-13 - Stop Left
-14 - Stop Right
-15 - Slow-stop (Ramp-down of speed instead of instant stop)
+13 - Slow-stop Forward
+14 - Slow-stop Backward (Ramp-down of speed instead of instant stop)
