@@ -147,7 +147,7 @@ def dm3(goalX, goalY):
 def transformMatrix(xCoord, yCoord):
     #starting xy coord
     start = [xCoord, yCoord]
-    trans_matrix = [math.sin(theta_transform), math.cos(theta_transform), 0],[-1*math.cos(theta_transform), sin(theta_transform), 0], [0,0,1]
+    trans_matrix = [math.sin(theta_transform), math.cos(theta_transform), 0],[-1*math.cos(theta_transform), math.sin(theta_transform), 0], [0,0,1]
     finishCoords = trans_matrix * start
     return finishCoords
 
@@ -202,37 +202,10 @@ def calibrate():
     standby(3)
     driving(0)
 
-    # #turn to go east
-    # while(isEast(currentDir) == False):
-
-    #     #if some version of south turn left
-    #     if(currentDir < 360  and currentDir > 180):
-    #         driving(3)
-    #     #else if some version of west, turn right
-    #     else:
-    #         driving(4)
-    #     standby()
-    #     currentDir = get_heading(compass)
-    # driving(15)
-    # #now the rover is pointing East
-    # findMe()
-    # x_cal_3 = currentX
-    # y_cal_3 = currentY
-
-    # #drive forward
-    # driving(1)
-    # standby()
-    # driving(0)
-
-    # #get end position
-    # findMe()
-    # x_cal_4 = currentX
-    # y_cal_4 = currentY
-
 
 def isNorth(currentDir):
     #put in a +- buffer of 2 degrees
-    if(currentDir >100 and currentDir < 102):
+    if(currentDir > 98  and currentDir < 102):
         return True
     else:
         return False
@@ -252,8 +225,8 @@ def findMe():
     currentZ = currentPos[2]
 
 def checkObs():
-    rangeMin = 30 #Rover allowed no closer than this (mm)
-    rangeAvoid = 100
+    rangeMin = 300 #Rover allowed no closer than this (mm)
+    rangeAvoid = 400
     rangeRead = getRange() #Reads the LIDAR
     #If there's an obstruction within range, return true
     if (rangeRead <= rangeMin):
@@ -275,14 +248,15 @@ def avoidObs(severity):
     if(severity == 2):
         driving(0) #stop the rover, then back it up
         #back & right
-        driving(0) #change to correct value - look up
-        standby()
+        driving(2) #change to correct value - look up
+        standby(2)
+        turnDegrees(10)
         checkObs()
 
     elif(severity == 1):
         #slow down, start turning
-        driving(4) # forward left
-        standby()
+        turnDegrees(10) # forward left
+        standby(2)
         checkObs()
 
     else:
@@ -291,6 +265,14 @@ def avoidObs(severity):
 # calc total distance to target
 def calcDist(deltaX, deltaY):
     return math.sqrt(math.pow(deltaX, 2) + math.pow(deltaY,2))
+
+def turnDegrees(numDeg):
+    currentDir = get_heading(compass)
+    goalHeading = currentDir + numDeg
+    while(currentDir <= goalHeading):
+        driving(4)
+        standby(1)
+        currentDir = get_heading(compass) 
 
 # compass code
 def vector_2_degrees(x, y):
@@ -561,15 +543,23 @@ class dm3Page(tk.Frame):
     def inputXGoal(self, controller):
         self.inputXField = tk.Entry(self)
         self.inputXField.grid(column = 2, row = 4)
+        self.inputXField2 = tk.Entry(self)
+        self.inputXField2.grid(column = 3, row = 4)
+        self.inputXField3 = tk.Entry(self)
+        self.inputXField3.grid(column = 4, row = 4)
     def inputXLabel(self):
-        self.inXlabel = tk.Label(self, text="Input X Goal", font=LARGE_FONT)
+        self.inXlabel = tk.Label(self, text="Input Waypoint X Coords", font=LARGE_FONT)
         self.inXlabel.grid(column=1, row = 4)
     #get y goal
     def inputYGoal(self, controller):
         self.inputYField = tk.Entry(self)
         self.inputYField.grid(column = 2, row = 5)
+        self.inputYField2 = tk.Entry(self)
+        self.inputYField2.grid(column = 3, row = 5)
+        self.inputYField3 = tk.Entry(self)
+        self.inputYField3.grid(column = 4, row = 5)
     def inputYLabel(self):
-        self.inYlabel = tk.Label(self, text="Input Y Goal", font=LARGE_FONT)
+        self.inYlabel = tk.Label(self, text="Input Waypoint Y Coordinates", font=LARGE_FONT)
         self.inYlabel.grid(column=1, row = 5)
 
     #general software stuff
@@ -582,9 +572,13 @@ class dm3Page(tk.Frame):
     # this is when auto mode starts
     def startCommand(self):
         goalX = float(self.inputXField.get())
+        goalX2 = float(self.inputXField2.get())
+        goalX3 = float(self.inputXField3.get())
         goalY = float(self.inputYField.get())
-        print(goalX)
-        print(goalY)
+        goalY2 = float(self.inputYField2.get())
+        goalY3 = float(self.inputYField3.get())
+        print(goalX, goalX2, goalX3)
+        print(goalY, goalY2, goalY3)
         startCam()
         dm3(goalX, goalY)
 
