@@ -133,12 +133,29 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
         current_heading = get_heading(compass)
 
         while(isHeading(current_heading, goal_heading) == False):
-            driving(3)
+            #spin clockwise. Make better in future versions
+            driving(15)
             current_heading = get_heading(compass)
             print(current_heading - goal_heading)
+        standby(0.5) #pause to let software catch up
+        driving(13)#stop the rover motion
 
-        standby(0.5)
-        driving(13)
+        findMe() #check position again, recalculate goal
+        if(x_goal == currentX and y_goal == currentY):
+            posReached = True
+        else:
+            posReached = False
+
+        while(posReached == False):
+            driving(1)
+            standby(0.1)
+            findMe()
+            if(x_goal == currentX and y_goal == currentY):
+                posReached = True
+            else:
+                posReached = False
+        print('Position ', i, ' Reached')
+
 
 
 
@@ -185,13 +202,8 @@ def calibrate():
     currentDir = get_heading(compass)
     isNorth(currentDir)
     while(isNorth(currentDir) == False):
-        driving(3)
-        #if some version of east, turn left
-        #if(currentDir < 180):
-            #driving(3)
-        #else if some version of west, turn right
-        #else:
-        #    driving(4)
+        #spin clockwise. Update this in future verions
+        driving(15)
         standby(0.5)
         currentDir = get_heading(compass)
         print(currentDir)
