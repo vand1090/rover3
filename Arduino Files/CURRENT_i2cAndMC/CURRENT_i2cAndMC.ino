@@ -7,14 +7,12 @@
 #include "SparkFun_VL53L1X.h"
 
 #define ARDUINO_ADDRESS 0x04
-
-
 int n = 0;
 int state = 0;
 int distance = 0;
 int commandReceived = 0;
 //set speed value from 0 to 255   
-int goNormalSpeed = 120;
+int goNormalSpeed = 250;
 int goFastSpeed = 220;
 int stopSpeed = 0;
 int speed = 0;
@@ -66,7 +64,114 @@ void setup() {
   //driveForward();
   Serial.println("done");
 }
+void receiveData(int byteCount){
+  while(Wire.available()){
+    commandReceived = Wire.read();
+    Serial.print("Data received: ");
+    Serial.println(commandReceived);
+    
+      //0-15
+      //0 - kill, dead stop
+      //1 - Normal Forward 
+      //2 - Normal Reverse 
+      //3 - Normal Forward Left
+      //4 - Normal Forward Right
+      //5 - Normal Reverse Left
+      //6 - Normal Reverse Right
+      //7 - Fast Forward
+      //8 - Fast Reverse
+      //9 - Fast Forward Left
+      //10 - Fast Forward Right
+      //11 - Fast Reverse Left
+      //12 - Fast Reverse Right
+      //13 - Slow-stop Forward
+      //14 - Slow-stop Backward (Ramp-down of speed instead of instant stop)
 
+    switch (commandReceived){
+      //LED stuff for testing
+      //n = 1;
+      //  if(state==0){
+      //    digitalWrite(13, HIGH);
+      //    state=1;
+      //  }
+      //  else{
+      //    digitalWrite(13, LOW);
+      //    state=0;
+      //  }
+      //  break;
+
+      case 0:    //kill, dead stop
+        stopMotion();
+        n=0;
+        break;
+      case 1:   //Normal Forward 
+        normalForward();
+        Serial.println("Going Forward");
+        n=1;
+        break;
+      case 2:   //Normal Reverse 
+        normalBackward();
+        n=2;
+        break;
+      case 3:   //Normal Forward Left
+        normalForwardLeft();
+        break;
+        n=3;
+      case 4:   //Normal Forward Right
+        normalForwardRight();
+        n=4;
+        break;
+      case 5:   //Normal Reverse Left
+        normalReverseLeft();
+        n=5;
+        break;
+      case 6:   //Normal Reverse Right
+        normalReverseRight();
+        n=6;
+        break;
+      case 7:   //Fast Forward
+        fastForward();
+        n=7;
+        break;
+      case 8:   //Fast Reverse
+        fastReverse();
+        n=8;
+        break;
+      case 9:   //Fast Forward Left
+        fastForwardLeft();
+        n=9;
+        break;
+      case 10:  //Fast Forward Right
+        fastForwardRight();
+        n=10;
+        break;
+      case 11:  //Fast Reverse Left
+        fastReverseLeft();
+        n=11;
+        break;
+      case 12:  //Fast Reverse Right
+        fastReverseRight();
+        n=12;
+        break;
+      case 13:  //Slow-stop Forward
+        slowForwardStop();
+        n=13;
+        break;
+      case 14:  //Slow-stop Backward
+        slowBackwardStop();
+        n=14;
+        break;
+      default:
+        stopMotion(); 
+      break;
+    }
+
+  }
+}
+
+void sendData(){
+  Wire.write(n);
+}
 void loop() {
   delay(100);
 }
@@ -173,112 +278,5 @@ void slowBackwardStop(){
       analogWrite(FOR_PWM_LEFT, stopSpeed);
       analogWrite(REV_PWM_LEFT, speed);
       delay(500);
-}
-
-void receiveData(int byteCount){
-  while(Wire.available()){
-    commandReceived = Wire.read();
-    Serial.print("Data received: ");
-    Serial.println(commandReceived);
-    
-      //0-15
-      //0 - kill, dead stop
-      //1 - Normal Forward 
-      //2 - Normal Reverse 
-      //3 - Normal Forward Left
-      //4 - Normal Forward Right
-      //5 - Normal Reverse Left
-      //6 - Normal Reverse Right
-      //7 - Fast Forward
-      //8 - Fast Reverse
-      //9 - Fast Forward Left
-      //10 - Fast Forward Right
-      //11 - Fast Reverse Left
-      //12 - Fast Reverse Right
-      //13 - Slow-stop Forward
-      //14 - Slow-stop Backward (Ramp-down of speed instead of instant stop)
-
-    switch (commandReceived){
-      //LED stuff for testing
-      //n = 1;
-      //  if(state==0){
-      //    digitalWrite(13, HIGH);
-      //    state=1;
-      //  }
-      //  else{
-      //    digitalWrite(13, LOW);
-      //    state=0;
-      //  }
-      //  break;
-
-      case 0:    //kill, dead stop
-        stopMotion();
-        n=0;
-        break;
-      case 1:   //Normal Forward 
-        normalForward();
-        Serial.println("Going Forward");
-        n=1;
-        break;
-      case 2:   //Normal Reverse 
-        normalBackward();
-        n=2;
-        break;
-      case 3:   //Normal Forward Left
-        normalForwardLeft();
-        break;
-        n=3;
-      case 4:   //Normal Forward Right
-        normalForwardRight();
-        n=4;
-        break;
-      case 5:   //Normal Reverse Left
-        normalReverseLeft();
-        n=5;
-        break;
-      case 6:   //Normal Reverse Right
-        normalReverseRight();
-        n=6;
-        break;
-      case 7:   //Fast Forward
-        fastForward();
-        n=7;
-        break;
-      case 8:   //Fast Reverse
-        fastReverse();
-        n=8;
-        break;
-      case 9:   //Fast Forward Left
-        fastForwardLeft();
-        n=9;
-        break;
-      case 10:  //Fast Forward Right
-        fastForwardRight();
-        n=10;
-        break;
-      case 11:  //Fast Reverse Left
-        fastReverseLeft();
-        n=11;
-        break;
-      case 12:  //Fast Reverse Right
-        fastReverseRight();
-        n=12;
-        break;
-      case 13:  //Slow-stop Forward
-        slowForwardStop();
-        n=13;
-        break;
-      case 14:  //Slow-stop Backward
-        slowBackwardStop();
-        n=14;
-        break;
-      default:
-        stopMotion(); 
-      break;
-    }
-
   }
-}
-void sendData(){
-  Wire.write(n);
 }
