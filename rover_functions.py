@@ -27,8 +27,8 @@ camera = PiCamera()
 restart = True
 i2c = busio.I2C(board.SCL, board.SDA)
 bus = smbus.SMBus(1)
-#temporarily unplugged
-#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
+
+tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
 compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
 duino_address = 0x04
 #hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
@@ -161,14 +161,14 @@ def calibrate():
     currentDir = get_heading(compass)
     isNorth(currentDir)
     while(isNorth(currentDir) == False):
-
+        driving(3)
         #if some version of east, turn left
-        if(currentDir < 180):
-            driving(3)
+        #if(currentDir < 180):
+            #driving(3)
         #else if some version of west, turn right
-        else:
-            driving(4)
-        standby(1)
+        #else:
+        #    driving(4)
+        standby(0.5)
         currentDir = get_heading(compass)
         print(currentDir)
     driving(15)
@@ -180,7 +180,7 @@ def calibrate():
 
     #drive forward
     driving(1)
-    standby(3)
+    standby(1.5)
     driving(0)
 
     #get end position
@@ -199,7 +199,7 @@ def calibrate():
 
     #go back to starting locations
     driving(2)
-    standby(3)
+    standby(1.5)
     driving(0)
 
 
@@ -238,6 +238,7 @@ def checkObs():
         avoidObs(1)
         return 1
     else:
+        driving(15)
         print("No obstacles")
         return 0
 
@@ -249,14 +250,14 @@ def avoidObs(severity):
         driving(0) #stop the rover, then back it up
         #back & right
         driving(2) #change to correct value - look up
-        standby(2)
-        turnDegrees(10)
+        standby(1)
+        turnDegrees(3)
         checkObs()
 
     elif(severity == 1):
         #slow down, start turning
-        turnDegrees(10) # forward left
-        standby(2)
+        turnDegrees(3) # forward left
+        standby(1)
         checkObs()
 
     else:
@@ -272,7 +273,7 @@ def turnDegrees(numDeg):
     while(currentDir <= goalHeading):
         driving(4)
         standby(1)
-        currentDir = get_heading(compass) 
+        currentDir = get_heading(compass)
 
 # compass code
 def vector_2_degrees(x, y):
