@@ -88,7 +88,7 @@ def kill():
 
 def startCam():
     #in this code the rover will open a camera preview
-    camera.start_preview(fullscreen=False,window=(0,0,200,200)) #xywh
+    camera.start_preview(fullscreen=False,window=(10,150,500,500)) #xywh
 
 def endCam():
     #this closes the camerai preview
