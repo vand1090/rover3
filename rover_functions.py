@@ -110,15 +110,39 @@ def dm2():
     #make a function that sends inputs to arduino
     driving(0)
 
-def dm3(goalX, goalY):
+def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
     driving(0)
     print("Drive Mode 3")
+    x_points = [goalX, goalX2, goalX3]
+    y_points = [goalY, goalY2, goalY3]
 
     #get starting poisition
-    findMe()
+    findMe() #sets values of currentX and currentY
+
     #can use these to zero out
-    x_mod = currentX
-    y_mod = currentY
+    x_origin = currentX
+    y_origin = currentY
+
+    num_waypoints = len(x_points)
+
+    for i in range(0, num_waypoints):
+        x_goal = x_points[i] - currentX
+        y_goal = y_points[i] - currentY
+
+        goal_heading = vector_2_degrees(x_goal, y_goal)
+        current_heading = get_heading(compass)
+
+        while(isHeading(current_heading, goal_heading) == False):
+            driving(3)
+            current_heading = get_heading(compass)
+            print(current_heading - goal_heading)
+
+        standby(0.5)
+        driving(13)
+
+
+
+
     finishCoords = transformMatrix(goalX, goalY)
     goalX_trans = finishCoords[0]
     goalY_trans = finishCoords[1]
@@ -171,7 +195,7 @@ def calibrate():
         standby(0.5)
         currentDir = get_heading(compass)
         print(currentDir)
-    driving(15)
+    driving(13)
     #now the rover is pointing North
     #get starting position for calibrations
     findMe()
@@ -209,9 +233,10 @@ def isNorth(currentDir):
         return True
     else:
         return False
-def isEast(currentDir):
-    #put in a +- buffer on 90 degrees
-    if(currentDir == 90):
+
+def isHeading(currentDir, goalDir):
+    #put in a +- buffer of 2 degrees
+    if(currentDir > goalDir-2  and currentDir < goalDir+2):
         return True
     else:
         return False
@@ -226,7 +251,7 @@ def findMe():
 
 def checkObs():
     rangeMin = 300 #Rover allowed no closer than this (mm)
-    rangeAvoid = 400
+    rangeAvoid = 500
     rangeRead = getRange() #Reads the LIDAR
     #If there's an obstruction within range, return true
     if (rangeRead <= rangeMin):
@@ -238,7 +263,7 @@ def checkObs():
         avoidObs(1)
         return 1
     else:
-        driving(15)
+        driving(13)
         print("No obstacles")
         return 0
 
@@ -286,7 +311,6 @@ def vector_2_degrees(x, y):
 def get_heading(_sensor):
     magnet_x, magnet_y, _ = _sensor.magnetic
     #mag_x, mag_y, mag_z = sensor.magnetic
-
     print('Magnetometer (gauss): ({0:10.3f}, {1:10.3f})'.format(magnet_x, magnet_y))
     return vector_2_degrees(magnet_x, magnet_y)
 #===========================================================================
@@ -445,7 +469,7 @@ class dm1Page(tk.Frame):
             driving(1)
     def off_w(self, event):
         print("off w")
-        driving(15)
+        driving(13)
     def on_a(self, event):
         self.label.configure(text="Left")
         if dm1:
@@ -454,7 +478,7 @@ class dm1Page(tk.Frame):
             time.sleep(2)
             driving(3)
     def off_a(self, event):
-        driving(15)
+        driving(13)
 
     def on_s(self, event):
         self.label.configure(text="Backward")
@@ -464,7 +488,7 @@ class dm1Page(tk.Frame):
             time.sleep(2)
             driving(2)
     def off_s(self, event):
-        driving(15)
+        driving(13)
 
     def on_d(self, event):
         self.label.configure(text="Right")
@@ -474,7 +498,7 @@ class dm1Page(tk.Frame):
             time.sleep(2)
             driving(4)
     def off_d(self, event):
-        driving(15)
+        driving(13)
 
     def on_x(self, event):
         driving(0)
@@ -581,7 +605,7 @@ class dm3Page(tk.Frame):
         print(goalX, goalX2, goalX3)
         print(goalY, goalY2, goalY3)
         startCam()
-        dm3(goalX, goalY)
+        dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3)
 
 #Reading GPS position. do not use for now
 #===================================================================
