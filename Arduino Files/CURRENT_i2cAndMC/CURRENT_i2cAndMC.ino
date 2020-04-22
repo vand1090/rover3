@@ -86,6 +86,7 @@ void receiveData(int byteCount){
       //12 - Fast Reverse Right
       //13 - Slow-stop Forward
       //14 - Slow-stop Backward (Ramp-down of speed instead of instant stop)
+      //15 - Spin clockwise
 
     switch (commandReceived){
       //LED stuff for testing
@@ -161,6 +162,8 @@ void receiveData(int byteCount){
         slowBackwardStop();
         n=14;
         break;
+      case 15:
+        spinCW();
       default:
         stopMotion(); 
       break;
@@ -189,6 +192,12 @@ void normalForward(){
   analogWrite(FOR_PWM_LEFT, goNormalSpeed);
   analogWrite(REV_PWM_LEFT, stopSpeed);
   Serial.println("end of drive forward");
+}
+void spinCW(){
+  analogWrite(FOR_PWM_RIGHT, stopSpeed);
+  analogWrite(REV_PWM_RIGHT, goFastSpeed);
+  analogWrite(FOR_PWM_LEFT, goFastSpeed);
+  analogWrite(REV_PWM_LEFT, stopSpeed);
 }
 void normalBackward(){
   analogWrite(FOR_PWM_RIGHT, stopSpeed);
