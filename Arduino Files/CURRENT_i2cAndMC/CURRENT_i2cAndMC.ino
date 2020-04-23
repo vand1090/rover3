@@ -12,8 +12,8 @@ int state = 0;
 int distance = 0;
 int commandReceived = 0;
 //set speed value from 0 to 255   
-int goNormalSpeed = 250;
-int goFastSpeed = 220;
+int goNormalSpeed = 120;
+int goFastSpeed = 200;
 int stopSpeed = 0;
 int speed = 0;
 
@@ -164,6 +164,7 @@ void receiveData(int byteCount){
         break;
       case 15:
         spinCW();
+        n = 15;
       default:
         stopMotion(); 
       break;
@@ -176,7 +177,7 @@ void sendData(){
   Wire.write(n);
 }
 void loop() {
-  delay(100);
+  delay(10);
 }
 void stopMotion(){
   //set speed value from 0 to 255 based on input
@@ -191,7 +192,7 @@ void normalForward(){
   analogWrite(REV_PWM_RIGHT, stopSpeed);
   analogWrite(FOR_PWM_LEFT, goNormalSpeed);
   analogWrite(REV_PWM_LEFT, stopSpeed);
-  Serial.println("end of drive forward");
+  //Serial.println("end of drive forward");
 }
 void spinCW(){
   analogWrite(FOR_PWM_RIGHT, stopSpeed);
