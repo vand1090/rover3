@@ -112,6 +112,7 @@ def dm2():
 
 def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
     driving(0)
+    calibrate()
     print("Drive Mode 3")
     x_points = [goalX, goalX2, goalX3]
     y_points = [goalY, goalY2, goalY3]
@@ -446,6 +447,7 @@ class dm1Page(tk.Frame):
         self.s = Debouncer(self.on_s,self.off_s)
         self.d = Debouncer(self.on_d,self.off_d)
         self.x = Debouncer(self.on_x,self.off_x)
+        self.j = Debouncer(self.on_j,self.off_j)
 
         self.label.bind("<Shift_L>", self.shift.released)
         self.label.bind("<w>", self.w.pressed)
@@ -453,6 +455,7 @@ class dm1Page(tk.Frame):
         self.label.bind("<s>", self.s.pressed)
         self.label.bind("<d>", self.d.pressed)
         self.label.bind("<x>", self.x.pressed)
+        self.label.bind("<j>", self.j.pressed)
 
         self.label.bind("<KeyRelease-Shift_L>", self.shift.released)
         self.label.bind("<KeyRelease-w>", self.w.released)
@@ -460,6 +463,7 @@ class dm1Page(tk.Frame):
         self.label.bind("<KeyRelease-s>", self.s.released)
         self.label.bind("<KeyRelease-d>", self.d.released)
         self.label.bind("<KeyRelease-x>", self.x.released)
+        self.label.bind("<KeyRelease-j>", self.j.released)
         # give keyboard focus to the label by default, and whenever
         # the user clicks on it
         self.label.focus_set()
@@ -500,7 +504,7 @@ class dm1Page(tk.Frame):
             time.sleep(2)
             driving(2)
     def off_s(self, event):
-        driving(13)
+        driving(14)
 
     def on_d(self, event):
         self.label.configure(text="Right")
@@ -519,6 +523,12 @@ class dm1Page(tk.Frame):
         global w
         shift = 0
         w = 0
+
+    def on_j(self, event):
+        self.label.configure(text = "Spin")
+        driving(15)
+    def off_j(self, event):
+        driving(13)
 
     def on_wasd(self, event):
         self.label.configure(text="last key pressed: " + event.keysym)
