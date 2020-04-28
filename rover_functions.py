@@ -35,11 +35,26 @@ duino_address = 0x04
 #hedge.start() # start thread
 LARGE_FONT= ("Verdana", 12)
 
-#Direct modes constants
+#Direct Drive modes constants
 w = 0
 s = 0
+a = 0
+d = 0
 shift = 0
 dm2delay = 2
+StopDead = 0
+forward = [1, 7]
+reverse = [2, 8]
+forLeft = [3, 9]
+forRight = [4, 10]
+revLeft = [5, 11]
+revRight = [6, 12]
+stopLeft = [3, 9]
+stopRight = [4, 10]
+stopSlow = [14, 13]
+Cspin = 15
+# Dire is direction, 1 is forward, 0 is reverse, determines which slow stop
+dire = 1
 
 #semi-auto vars, do not mess with
 currentPos = []
@@ -473,56 +488,153 @@ class dm1Page(tk.Frame):
     def on_shift(self,event):
         global shift
         shift = 1
+        
     def off_shift(self, event):
         global shift
         shift = 0
+        
     def on_w(self, event):
         self.label.configure(text="Forward")
-        if dm1:
-            driving(1)
-        elif dm2:
+        if dm2:
             time.sleep(dm2delay)
-            driving(1)
+        global w, a, s, d, shift, dire
+        dire = 1
+        w = 1
+        if a == 1:
+            driving(forLeft[shift])
+        elif d == 1:
+            driving(forRight[shift])
+        else:
+            driving(forward[shift])
+            
     def off_w(self, event):
-        print("off w")
-        driving(13)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        w = 0
+        if a == 1:
+            driving(stopLeft[shift])
+        elif d == 1:
+            driving(stopRight[shift])
+        elif s == 0:
+            driving(stopSlow[1])
+
+        
     def on_a(self, event):
         self.label.configure(text="Left")
-        if dm1:
-            driving(3)
-        elif dm2:
-            time.sleep(2)
-            driving(3)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        a = 1
+        if w == 1:
+            driving(forLeft[shift])
+        elif s == 1:
+            driving(revLeft[shift])
+        else:
+            driving(stopLeft[shift])
+        
     def off_a(self, event):
-        driving(13)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        a = 0
+        if w == 1 and s == 1:
+            if dire == 0:
+                driving(forward[shift])
+            elif dire == 1:
+                driving(reverse[shift])
+        elif w == 1:
+            driving(forward[shift])
+        elif s == 1:
+            driving(reverse[shift])
+        else:
+            # Since there is no turn without moving, slow stop is used
+            # driving(stopDead)
+            driving(stopSlow[dire])
+        
+            
 
     def on_s(self, event):
         self.label.configure(text="Backward")
-        if dm1:
-            driving(2)
-        elif dm2:
-            time.sleep(2)
-            driving(2)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift, dire
+        dire = 0
+        s = 1
+        if a == 1:
+            driving(revLeft[shift])
+        elif d == 1:
+            driving(revRight[shift])
+        else:
+            driving(reverse[shift])
+            
     def off_s(self, event):
-        driving(14)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        s = 0
+        if a == 1:
+        # If standstill turns are implemented, replace revLeft with stopLeft,
+        # This is to prevent jerking since there is no stop left or stop right
+            driving(revLeft[shift])
+        elif d == 1:
+        # If standstill turns are implemented, replace revRight with stopRight,
+        # This is to prevent jerking since there is no stop left or stop right
+            driving(revRight[shift])
+        elif w == 0:
+            driving(stopSlow[0])
 
     def on_d(self, event):
         self.label.configure(text="Right")
-        if dm1:
-            driving(4)
-        elif dm2:
-            time.sleep(2)
-            driving(4)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        d = 1
+        if w == 1:
+            driving(forRight[shift])
+        elif s == 1:
+            driving(revRight[shift])
+        else:
+            driving(stopRight[shift])
+            
+            
     def off_d(self, event):
-        driving(13)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        d = 0
+        if w == 1 and s == 1:
+            if dire == 0:
+                driving(forward[shift])
+            elif dire == 1:
+                driving(reverse[shift])
+        elif w == 1:
+            driving(forward[shift])
+        elif s == 1:
+            driving(reverse[shift])
+        else:
+            # Since there is no turn without moving, slow stop is used
+            # driving(stopDead)
+            driving(stopSlow[dire])
 
     def on_x(self, event):
-        driving(0)
-    def off_x(self, event):
-        global shift
-        global w
+        driving(stopDead)
+        global w, a, s, d, shift, dire 
         shift = 0
         w = 0
+        a = 0
+        s = 0
+        d = 0
+        dire = 0
+        
+    def off_x(self, event):
+        global w, a, s, d, shift, dire 
+        shift = 0
+        w = 0
+        a = 0
+        s = 0
+        d = 0
+        dire = 0
 
     def on_j(self, event):
         self.label.configure(text = "Spin")
