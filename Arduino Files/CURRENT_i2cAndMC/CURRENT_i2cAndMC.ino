@@ -165,6 +165,7 @@ void receiveData(int byteCount){
       case 15:
         spinCW();
         n = 15;
+        break;
       default:
         stopMotion(); 
       break;

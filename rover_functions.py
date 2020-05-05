@@ -16,21 +16,29 @@ import adafruit_lsm303dlh_mag
 from marvelmind import MarvelmindHedge
 from debouncer import Debouncer
 #from keybinder import KeyBinder
+
 #==========================================================
 # Rover 3 Control Code Functions - Raspberry Pi
 # Author: Alexander Vanden Bussche
+# Co-Authors: Kelly Low, Nathan Chow
+# For questions or concerns, please call:
+# (312) 809 1021
+# or email:
+# vand1090@umn.edu
 # Spring 2020
 #==========================================================
+
 #in itialize sensors and buses
 camera = PiCamera()
-#drive = 6
-restart = True
-i2c = busio.I2C(board.SCL, board.SDA)
-bus = smbus.SMBus(1)
+restart = True #unused at this point
+i2c = busio.I2C(board.SCL, board.SDA) #initialize the i2c bus
+bus = smbus.SMBus(1) #second i2c bus, should eventually be merged with the above. 
+duino_address = 0x04 #defines i2c adress for the arduino
 
-tof_sensor = adafruit_vl53l0x.VL53L0X(i2c)
+#with the following libraries, be aware of the restrictions of open source code
+tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) #library downloaded from Adafruit
 compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
-duino_address = 0x04
+
 #hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
 #hedge.start() # start thread
 LARGE_FONT= ("Verdana", 12)
