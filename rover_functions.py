@@ -265,7 +265,7 @@ def isHeading(currentDir, goalDir):
 def findMe():
     #this function finds the rover in the IPS system
     #hedge.print_position()
-    currentPos =[0, 0, 0] # hedge.position()
+    currentPos = hedge.position()
     currentX = currentPos[0]
     currentY = currentPos[1]
     currentZ = currentPos[2]
@@ -292,7 +292,7 @@ def avoidObs(severity):
     #this function tries to move the rover arund an obstacle
     print("avoiding obstacles")
 
-    if(severity == 2):
+    if(severity == 2): #meaning it's about to hit the obstable
         driving(0) #stop the rover, then back it up
         #back & right
         driving(2) #change to correct value - look up
@@ -300,7 +300,7 @@ def avoidObs(severity):
         turnDegrees(3)
         checkObs()
 
-    elif(severity == 1):
+    elif(severity == 1): #has room to change course w/o stopping
         #slow down, start turning
         turnDegrees(3) # forward left
         standby(1)
