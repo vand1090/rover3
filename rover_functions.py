@@ -32,15 +32,15 @@ from debouncer import Debouncer
 camera = PiCamera()
 restart = True #unused at this point
 i2c = busio.I2C(board.SCL, board.SDA) #initialize the i2c bus
-bus = smbus.SMBus(1) #second i2c bus, should eventually be merged with the above. 
+bus = smbus.SMBus(1) #second i2c bus, should eventually be merged with the above.
 duino_address = 0x04 #defines i2c adress for the arduino
 
 #with the following libraries, be aware of the restrictions of open source code
-tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) #library downloaded from Adafruit
+#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) #library downloaded from Adafruit
 compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
 
-#hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
-#hedge.start() # start thread
+hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
+hedge.start() # start thread
 LARGE_FONT= ("Verdana", 12)
 
 #Direct Drive mode key press flags
@@ -49,7 +49,7 @@ s = 0
 a = 0
 d = 0
 shift = 0
-dm2delay = 2
+dm2delay = 0
 
 # Emergency Stop flag
 StopDead = 0
@@ -183,9 +183,6 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
             else:
                 posReached = False
         print('Position ', i, ' Reached')
-
-
-
 
 
     finishCoords = transformMatrix(goalX, goalY)
@@ -465,11 +462,11 @@ class dm1Page(tk.Frame):
         startCam()
         dm1()
 
-   def keyBind(self):
+    def keyBind(self):
         self.label = tk.Label(self, text="Key Press:  ", width=20)
 
         self.shift = Debouncer(self.on_shift,self.off_shift)
-        
+
         # Debouncer handoff for keypresses, prevents crash due to key holding
         self.w = Debouncer(self.on_w,self.off_w)
         self.a = Debouncer(self.on_a,self.off_a)
@@ -477,7 +474,7 @@ class dm1Page(tk.Frame):
         self.d = Debouncer(self.on_d,self.off_d)
         self.x = Debouncer(self.on_x,self.off_x)
         self.j = Debouncer(self.on_j,self.off_j)
-        
+
         # Keypress keybinds
         self.label.bind("<Shift_L>", self.shift.released)
         self.label.bind("<w>", self.w.pressed)
@@ -500,16 +497,16 @@ class dm1Page(tk.Frame):
         self.label.focus_set()
         self.label.bind("<1>", lambda event: self.label.focus_set())
         self.label.grid(column = 1, row = 5)
-    
+
     # Hi-speed flag, turns on "shift" flag on press an off on release
     def on_shift(self,event):
         global shift
         shift = 1
-    
+
     def off_shift(self, event):
         global shift
         shift = 0
-    
+
     # W-key, drives forward if pressed alone and forward+left/right if a/d are pressed
     def on_w(self, event):
         self.label.configure(text="Forward")
@@ -524,8 +521,8 @@ class dm1Page(tk.Frame):
             driving(forRight[shift])
         else:
             driving(forward[shift])
-            
-    # Checks to return to other drive directions when released        
+
+    # Checks to return to other drive directions when released
     def off_w(self, event):
         if dm2:
             time.sleep(dm2delay)
@@ -551,7 +548,7 @@ class dm1Page(tk.Frame):
             driving(revLeft[shift])
         else:
             driving(stopLeft[shift])
-   
+
     # Returns to other drive functions when released
     def off_a(self, event):
         if dm2:
@@ -571,9 +568,9 @@ class dm1Page(tk.Frame):
             # Since there is no turn without moving, slow stop is used
             # driving(stopDead)
             driving(stopSlow[dire])
-        
-            
-    # S key, reverse when pressed checks a/d to allow for reverse left/right 
+
+
+    # S key, reverse when pressed checks a/d to allow for reverse left/right
     def on_s(self, event):
         self.label.configure(text="Backward")
         if dm2:
@@ -587,7 +584,7 @@ class dm1Page(tk.Frame):
             driving(revRight[shift])
         else:
             driving(reverse[shift])
-    
+
     # Checks if other keys are pressed and returns to turn, will return to reverse left/right when a/d is still held after
     # s is released to prevent jerking
     def off_s(self, event):
@@ -619,7 +616,7 @@ class dm1Page(tk.Frame):
             driving(revRight[shift])
         else:
             driving(stopRight[shift])
-            
+
     # Returns to forward or reverse when released
     def off_d(self, event):
         if dm2:
@@ -639,21 +636,21 @@ class dm1Page(tk.Frame):
             # Since there is no turn without moving, slow stop is used
             # driving(stopDead)
             driving(stopSlow[dire])
-            
+
     # Emergency stop, resets all key flags to off
     def on_x(self, event):
         driving(stopDead)
-        global w, a, s, d, shift, dire 
+        global w, a, s, d, shift, dire
         shift = 0
         w = 0
         a = 0
         s = 0
         d = 0
         dire = 0
-    
+
     # Ensures keys flags are off
     def off_x(self, event):
-        global w, a, s, d, shift, dire 
+        global w, a, s, d, shift, dire
         shift = 0
         w = 0
         a = 0
@@ -667,7 +664,7 @@ class dm1Page(tk.Frame):
         driving(15)
     def off_j(self, event):
         driving(13)
-        
+
     # Displays current/last pressed key on GUI
     def on_wasd(self, event):
         self.label.configure(text="last key pressed: " + event.keysym)
