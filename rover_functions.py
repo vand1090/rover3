@@ -32,22 +32,41 @@ from debouncer import Debouncer
 camera = PiCamera()
 restart = True #unused at this point
 i2c = busio.I2C(board.SCL, board.SDA) #initialize the i2c bus
-bus = smbus.SMBus(1) #second i2c bus, should eventually be merged with the above. 
+bus = smbus.SMBus(1) #second i2c bus, should eventually be merged with the above.
 duino_address = 0x04 #defines i2c adress for the arduino
 
 #with the following libraries, be aware of the restrictions of open source code
-tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) #library downloaded from Adafruit
+#tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) #library downloaded from Adafruit
 compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
 
-#hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
-#hedge.start() # start thread
+hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
+hedge.start() # start thread
 LARGE_FONT= ("Verdana", 12)
 
-#Direct modes constants
+#Direct Drive mode key press flags
 w = 0
 s = 0
+a = 0
+d = 0
 shift = 0
-dm2delay = 2
+dm2delay = 0
+
+# Emergency Stop flag
+StopDead = 0
+
+# Drive mode constants for easier reading (Refer to Drive Functions.txt)
+forward = [1, 7]
+reverse = [2, 8]
+forLeft = [3, 9]
+forRight = [4, 10]
+revLeft = [5, 11]
+revRight = [6, 12]
+stopLeft = [3, 9]
+stopRight = [4, 10]
+stopSlow = [14, 13]
+Cspin = 15
+# Dire is direction, 1 is forward, 0 is reverse, determines which slow stop
+dire = 1
 
 #semi-auto vars, do not mess with
 currentPos = []
@@ -164,9 +183,6 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
             else:
                 posReached = False
         print('Position ', i, ' Reached')
-
-
-
 
 
     finishCoords = transformMatrix(goalX, goalY)
@@ -450,6 +466,8 @@ class dm1Page(tk.Frame):
         self.label = tk.Label(self, text="Key Press:  ", width=20)
 
         self.shift = Debouncer(self.on_shift,self.off_shift)
+
+        # Debouncer handoff for keypresses, prevents crash due to key holding
         self.w = Debouncer(self.on_w,self.off_w)
         self.a = Debouncer(self.on_a,self.off_a)
         self.s = Debouncer(self.on_s,self.off_s)
@@ -457,6 +475,7 @@ class dm1Page(tk.Frame):
         self.x = Debouncer(self.on_x,self.off_x)
         self.j = Debouncer(self.on_j,self.off_j)
 
+        # Keypress keybinds
         self.label.bind("<Shift_L>", self.shift.released)
         self.label.bind("<w>", self.w.pressed)
         self.label.bind("<a>", self.a.pressed)
@@ -465,6 +484,7 @@ class dm1Page(tk.Frame):
         self.label.bind("<x>", self.x.pressed)
         self.label.bind("<j>", self.j.pressed)
 
+        # Keypress release binds
         self.label.bind("<KeyRelease-Shift_L>", self.shift.released)
         self.label.bind("<KeyRelease-w>", self.w.released)
         self.label.bind("<KeyRelease-a>", self.a.released)
@@ -478,66 +498,174 @@ class dm1Page(tk.Frame):
         self.label.bind("<1>", lambda event: self.label.focus_set())
         self.label.grid(column = 1, row = 5)
 
+    # Hi-speed flag, turns on "shift" flag on press an off on release
     def on_shift(self,event):
         global shift
         shift = 1
+
     def off_shift(self, event):
         global shift
         shift = 0
+
+    # W-key, drives forward if pressed alone and forward+left/right if a/d are pressed
     def on_w(self, event):
         self.label.configure(text="Forward")
-        if dm1:
-            driving(1)
-        elif dm2:
+        if dm2:
             time.sleep(dm2delay)
-            driving(1)
+        global w, a, s, d, shift, dire
+        dire = 1
+        w = 1
+        if a == 1:
+            driving(forLeft[shift])
+        elif d == 1:
+            driving(forRight[shift])
+        else:
+            driving(forward[shift])
+
+    # Checks to return to other drive directions when released
     def off_w(self, event):
-        print("off w")
-        driving(13)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        w = 0
+        if a == 1:
+            driving(stopLeft[shift])
+        elif d == 1:
+            driving(stopRight[shift])
+        elif s == 0:
+            driving(stopSlow[1])
+
+    # A key, turns rover left, since there is no c-wise and cc-wise spin, drives forward left by default
     def on_a(self, event):
         self.label.configure(text="Left")
-        if dm1:
-            driving(3)
-        elif dm2:
-            time.sleep(2)
-            driving(3)
-    def off_a(self, event):
-        driving(13)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        a = 1
+        if w == 1:
+            driving(forLeft[shift])
+        elif s == 1:
+            driving(revLeft[shift])
+        else:
+            driving(stopLeft[shift])
 
+    # Returns to other drive functions when released
+    def off_a(self, event):
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        a = 0
+        if w == 1 and s == 1:
+            if dire == 0:
+                driving(forward[shift])
+            elif dire == 1:
+                driving(reverse[shift])
+        elif w == 1:
+            driving(forward[shift])
+        elif s == 1:
+            driving(reverse[shift])
+        else:
+            # Since there is no turn without moving, slow stop is used
+            # driving(stopDead)
+            driving(stopSlow[dire])
+
+
+    # S key, reverse when pressed checks a/d to allow for reverse left/right
     def on_s(self, event):
         self.label.configure(text="Backward")
-        if dm1:
-            driving(2)
-        elif dm2:
-            time.sleep(2)
-            driving(2)
-    def off_s(self, event):
-        driving(14)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift, dire
+        dire = 0
+        s = 1
+        if a == 1:
+            driving(revLeft[shift])
+        elif d == 1:
+            driving(revRight[shift])
+        else:
+            driving(reverse[shift])
 
+    # Checks if other keys are pressed and returns to turn, will return to reverse left/right when a/d is still held after
+    # s is released to prevent jerking
+    def off_s(self, event):
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        s = 0
+        if a == 1:
+        # If standstill turns are implemented, replace revLeft with stopLeft,
+        # This is to prevent jerking since there is no stop left or stop right
+            driving(revLeft[shift])
+        elif d == 1:
+        # If standstill turns are implemented, replace revRight with stopRight,
+        # This is to prevent jerking since there is no stop left or stop right
+            driving(revRight[shift])
+        elif w == 0:
+            driving(stopSlow[0])
+
+    # D key, turns rover rightnce there is no c-wise and cc-wise spin, drives forward right by default
     def on_d(self, event):
         self.label.configure(text="Right")
-        if dm1:
-            driving(4)
-        elif dm2:
-            time.sleep(2)
-            driving(4)
-    def off_d(self, event):
-        driving(13)
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        d = 1
+        if w == 1:
+            driving(forRight[shift])
+        elif s == 1:
+            driving(revRight[shift])
+        else:
+            driving(stopRight[shift])
 
+    # Returns to forward or reverse when released
+    def off_d(self, event):
+        if dm2:
+            time.sleep(dm2delay)
+        global w, a, s, d, shift
+        d = 0
+        if w == 1 and s == 1:
+            if dire == 0:
+                driving(forward[shift])
+            elif dire == 1:
+                driving(reverse[shift])
+        elif w == 1:
+            driving(forward[shift])
+        elif s == 1:
+            driving(reverse[shift])
+        else:
+            # Since there is no turn without moving, slow stop is used
+            # driving(stopDead)
+            driving(stopSlow[dire])
+
+    # Emergency stop, resets all key flags to off
     def on_x(self, event):
-        driving(0)
-    def off_x(self, event):
-        global shift
-        global w
+        driving(stopDead)
+        global w, a, s, d, shift, dire
         shift = 0
         w = 0
+        a = 0
+        s = 0
+        d = 0
+        dire = 0
 
+    # Ensures keys flags are off
+    def off_x(self, event):
+        global w, a, s, d, shift, dire
+        shift = 0
+        w = 0
+        a = 0
+        s = 0
+        d = 0
+        dire = 0
+
+    # Clockwise spin autonomous debug test
     def on_j(self, event):
         self.label.configure(text = "Spin")
         driving(15)
     def off_j(self, event):
         driving(13)
 
+    # Displays current/last pressed key on GUI
     def on_wasd(self, event):
         self.label.configure(text="last key pressed: " + event.keysym)
 
