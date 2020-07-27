@@ -1,5 +1,5 @@
 from gpiozero import * #uncomment this on the pi
-import cv2 #uncomment this on the pi
+import cv2 #uncomment this on the pwsi
 import rover_functions as fn
 import time
 import serial

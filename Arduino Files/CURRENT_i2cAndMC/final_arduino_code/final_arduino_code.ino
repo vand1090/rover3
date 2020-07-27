@@ -6,7 +6,7 @@
 
 // Function: To read data from i2c and send commands to the motor controllers
 
-// Drive Commands (0-15):
+// Drive Commands (0-16):
 // 0 - kill, dead stop
 // 1 - Normal Forward 
 // 2 - Normal Reverse 
@@ -23,14 +23,15 @@
 // 13 - Slow-stop Forward
 // 14 - Slow-stop Backward (Ramp-down of speed instead of instant stop)
 // 15 - Spin clockwise
+// 16 - Spin counter clockwise
 
 #include <Wire.h>
-#include <ComponentObject.h>
-#include <RangeSensor.h>
-#include <SparkFun_VL53L1X.h>
-#include <vl53l1x_class.h>
-#include <vl53l1_error_codes.h>
-#include "SparkFun_VL53L1X.h"
+//#include <ComponentObject.h>
+//#include <RangeSensor.h>
+//#include <SparkFun_VL53L1X.h>
+//#include <vl53l1x_class.h>
+//#include <vl53l1_error_codes.h>
+//#include "SparkFun_VL53L1X.h"
 
 #define ARDUINO_ADDRESS 0x04
 
@@ -56,7 +57,7 @@ int speed = 0; // Current speed
 
 // Set speed value from 0 to 255 (slow-fast) 
 int goNormalSpeed = 120;
-int goFastSpeed = 200;
+int goFastSpeed = 180;
 int stopSpeed = 0;
 
 void setup() {
@@ -180,8 +181,12 @@ void receiveData(int byteCount){
         n=14;
         break;
       case 15:
-        spinCW(); // Spin clockwise
+        spinCCW(); // Spin clockwise
         n = 15;
+        break;
+      case 16:
+        spinCW(); // Spin counter clockwise
+        n = 16;
         break;
       default:
         stopMotion(); // Default is set to stop to ensure Rover is in a stop position when no key is pressed
@@ -310,7 +315,7 @@ void fastReverseRight(){
 
 // Forward slow down and stop
 void slowForwardStop(){
-  // Speed slows down in every 500ms from normal speed to stop
+  // Speed slows down in every 750ms from normal speed to stop
   for (speed = goNormalSpeed; speed >= 0; speed--){
     // If stop key is pressed, rover brakes immediately
     if(commandReceived==0){
@@ -320,13 +325,13 @@ void slowForwardStop(){
       analogWrite(REV_PWM_RIGHT, stopSpeed);
       analogWrite(FOR_PWM_LEFT, speed);
       analogWrite(REV_PWM_LEFT, stopSpeed);
-      delay(500);
+      delay(750);
   }
 }
 
 // Backward slow down and stop
 void slowBackwardStop(){
-  // Speed slows down in every 500ms from normal speed to stop
+  // Speed slows down in every 750ms from normal speed to stop
   for (speed = goNormalSpeed; speed >= 0; speed--){
     // If stop key is pressed, rover brakes immediately
     if(commandReceived==0){
@@ -336,7 +341,7 @@ void slowBackwardStop(){
       analogWrite(REV_PWM_RIGHT, speed);
       analogWrite(FOR_PWM_LEFT, stopSpeed);
       analogWrite(REV_PWM_LEFT, speed);
-      delay(500);
+      delay(750);
   }
 }
 
@@ -346,4 +351,12 @@ void spinCW(){
   analogWrite(REV_PWM_RIGHT, goFastSpeed);
   analogWrite(FOR_PWM_LEFT, goFastSpeed);
   analogWrite(REV_PWM_LEFT, stopSpeed);
+}
+
+// Spins counter clockwise with fast speed
+void spinCCW(){
+  analogWrite(FOR_PWM_RIGHT, goFastSpeed);
+  analogWrite(REV_PWM_RIGHT, stopSpeed);
+  analogWrite(FOR_PWM_LEFT, stopSpeed);
+  analogWrite(REV_PWM_LEFT, goFastSpeed);
 }

@@ -39,7 +39,7 @@ duino_address = 0x04 #defines i2c adress for the arduino
 #tof_sensor = adafruit_vl53l0x.VL53L0X(i2c) #library downloaded from Adafruit
 compass = adafruit_lsm303dlh_mag.LSM303DLH_Mag(i2c)
 
-hedge = MarvelmindHedge(tty = "/dev/ttyACM0", adr=None, debug=False) # create MarvelmindHedge thread
+hedge = MarvelmindHedge(adr = None, tty = "/dev/ttyACM1", baud = 9600, debug = False) # create MarvelmindHedge thread
 hedge.start() # start thread
 LARGE_FONT= ("Verdana", 12)
 
@@ -48,23 +48,28 @@ w = 0
 s = 0
 a = 0
 d = 0
-shift = 0
+j = 0 #CCW spin
+k = 0 #CW spin
 dm2delay = 0
+
+# Shift "transmission": 0 = slow, 1 = fast
+shift = 1
 
 # Emergency Stop flag
 StopDead = 0
 
 # Drive mode constants for easier reading (Refer to Drive Functions.txt)
-forward = [1, 7]
-reverse = [2, 8]
-forLeft = [3, 9]
-forRight = [4, 10]
-revLeft = [5, 11]
-revRight = [6, 12]
-stopLeft = [3, 9]
+forward   = [1, 7]
+reverse   = [2, 8]
+forLeft   = [3, 9]
+forRight  = [4, 10]
+revLeft   = [5, 11]
+revRight  = [6, 12]
+stopLeft  = [3, 9]
 stopRight = [4, 10]
-stopSlow = [14, 13]
-Cspin = 15
+stopSlow  = [14, 13]
+CCspin    = 15
+Cspin     = 16
 # Dire is direction, 1 is forward, 0 is reverse, determines which slow stop
 dire = 1
 
@@ -114,12 +119,19 @@ def kill():
     exit()
 
 def startCam():
-    #in this code the rover will open a camera preview
-    camera.start_preview(fullscreen=False,window=(10,150,500,500)) #xywh
+    #Camera automatically records 60 seconds of video upon startup
+    camera.start_preview(fullscreen=False,window=(10,160,640,480))
+    camera.start_recording("/home/pi/Videos/rovervid_5.h264")
+    #camera.wait_recording(15)
 
 def endCam():
-    #this closes the camerai preview
+    #this closes the camera preview
     camera.stop_preview()
+    camera.stop_recording()
+
+def toggleShift():
+    global shift
+    shift = not shift
 
 def dm1():
     #Drive mode 1 is manual control (WASD/Controller)
@@ -144,7 +156,7 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
     x_points = [goalX, goalX2, goalX3]
     y_points = [goalY, goalY2, goalY3]
 
-    #get starting poisition
+    #get starting position
     findMe() #sets values of currentX and currentY
 
     #can use these to zero out
@@ -162,7 +174,7 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
 
         while(isHeading(current_heading, goal_heading) == False):
             #spin clockwise. Make better in future versions
-            driving(15)
+            driving(16)
             current_heading = get_heading(compass)
             print(current_heading - goal_heading)
         standby(0.5) #pause to let software catch up
@@ -228,7 +240,7 @@ def calibrate():
     isNorth(currentDir)
     while(isNorth(currentDir) == False):
         #spin clockwise. Update this in future verions
-        driving(15)
+        driving(16)
         standby(0.5)
         currentDir = get_heading(compass)
         print(currentDir)
@@ -437,6 +449,7 @@ class dm1Page(tk.Frame):
         self.exitBtn()
         self.mainMenuBtn(controller)
         self.startBtn() #controls wont work until this is pressed
+        self.shiftBtn() #shift button: 0 is normal speed. 1 is fast speed.
         #startCam()
         #dm1()
         #move this to control modes:
@@ -454,58 +467,67 @@ class dm1Page(tk.Frame):
         endCam()
         kill()
 
-    def startBtn(self): #makes stat button
+    def startBtn(self): #makes start button
         self.start = tk.Button(self, text = 'START', command = self.startCommand)
         self.start.grid(column = 1, row = 3)
+
+    def shiftBtn(self): #makes shift button
+        self.shift = tk.Button(self, text = 'SHIFT', command = self.shiftCommand)
+        self.shift.grid(column = 2, row = 3)
 
     def startCommand(self):
         startCam()
         dm1()
 
+    def shiftCommand(self):
+        toggleShift()
+
     def keyBind(self):
         self.label = tk.Label(self, text="Key Press:  ", width=20)
 
-        self.shift = Debouncer(self.on_shift,self.off_shift)
-
         # Debouncer handoff for keypresses, prevents crash due to key holding
+    #    self.shift = Debouncer(self.on_shift,self.off_shift)
         self.w = Debouncer(self.on_w,self.off_w)
         self.a = Debouncer(self.on_a,self.off_a)
         self.s = Debouncer(self.on_s,self.off_s)
         self.d = Debouncer(self.on_d,self.off_d)
         self.x = Debouncer(self.on_x,self.off_x)
         self.j = Debouncer(self.on_j,self.off_j)
+        self.k = Debouncer(self.on_k,self.off_k)
 
         # Keypress keybinds
-        self.label.bind("<Shift_L>", self.shift.released)
+    #    self.label.bind("<Shift_L>", self.shift.released)
         self.label.bind("<w>", self.w.pressed)
         self.label.bind("<a>", self.a.pressed)
         self.label.bind("<s>", self.s.pressed)
         self.label.bind("<d>", self.d.pressed)
         self.label.bind("<x>", self.x.pressed)
         self.label.bind("<j>", self.j.pressed)
+        self.label.bind("<k>", self.k.pressed)
 
         # Keypress release binds
-        self.label.bind("<KeyRelease-Shift_L>", self.shift.released)
+    #    self.label.bind("<KeyRelease-Shift_L>", self.shift.released)
         self.label.bind("<KeyRelease-w>", self.w.released)
         self.label.bind("<KeyRelease-a>", self.a.released)
         self.label.bind("<KeyRelease-s>", self.s.released)
         self.label.bind("<KeyRelease-d>", self.d.released)
         self.label.bind("<KeyRelease-x>", self.x.released)
         self.label.bind("<KeyRelease-j>", self.j.released)
+        self.label.bind("<KeyRelease-k>", self.k.released)
         # give keyboard focus to the label by default, and whenever
         # the user clicks on it
         self.label.focus_set()
         self.label.bind("<1>", lambda event: self.label.focus_set())
         self.label.grid(column = 1, row = 5)
 
-    # Hi-speed flag, turns on "shift" flag on press an off on release
-    def on_shift(self,event):
-        global shift
-        shift = 1
+    # Hi-speed flag, turns on "shift" flag on press and off on release
+    #def on_shift(self,event):
+    #    global shift
+    #    shift = 1
 
-    def off_shift(self, event):
-        global shift
-        shift = 0
+    #def off_shift(self, event):
+    #    global shift
+    #    shift = 0
 
     # W-key, drives forward if pressed alone and forward+left/right if a/d are pressed
     def on_w(self, event):
@@ -663,6 +685,13 @@ class dm1Page(tk.Frame):
         self.label.configure(text = "Spin")
         driving(15)
     def off_j(self, event):
+        driving(13)
+
+    # Counter Clockwise spin autonomous debug test
+    def on_k(self, event):
+        self.label.configure(text = "Spin")
+        driving(16)
+    def off_k(self, event):
         driving(13)
 
     # Displays current/last pressed key on GUI
