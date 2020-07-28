@@ -20,12 +20,12 @@ from debouncer import Debouncer
 #==========================================================
 # Rover 3 Control Code Functions - Raspberry Pi
 # Author: Alexander Vanden Bussche
-# Co-Authors: Kelly Low, Nathan Chow
+# Co-Authors: Kelly Low, Nathan Chow, Justin Muhonen
 # For questions or concerns, please call:
 # (312) 809 1021
 # or email:
 # vand1090@umn.edu
-# Spring 2020
+# Spring 2020, Summer 2020
 #==========================================================
 
 #in itialize sensors and buses
@@ -78,6 +78,7 @@ currentPos = []
 currentX = 0
 currentY = 0
 currentZ = 0
+currentTheta = 0
 destinationReached = False
 theta_transform = 0
 #==========================================================
@@ -149,12 +150,16 @@ def dm2():
     #make a function that sends inputs to arduino
     driving(0)
 
-def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
+def dm3(): #goalX, goalX2, goalX3, goalY, goalY2, goalY3): ###Changed to no inputs
     driving(0)
     calibrate()
     print("Drive Mode 3")
-    x_points = [goalX, goalX2, goalX3]
-    y_points = [goalY, goalY2, goalY3]
+
+    ## Insert code here to read in MM waypoints
+
+    ## Set waypoint coords into usable format, such as arrays
+    x_points = [0,0,0] #[goalX, goalX2, goalX3] ###Set to zeros for now
+    y_points = [0,0,0] #[goalY, goalY2, goalY3] ###Set to zeros for now
 
     #get starting position
     findMe() #sets values of currentX and currentY
@@ -163,15 +168,29 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
     x_origin = currentX
     y_origin = currentY
 
+    ## Check how many arrays we need to hit
     num_waypoints = len(x_points)
 
+    ## Go to each of N waypoints
     for i in range(0, num_waypoints):
-        x_goal = x_points[i] - currentX
-        y_goal = y_points[i] - currentY
 
+        ###############################################################
+        # General Goal:
+        # Check position at beginning, set heading towards next waypoint
+        # Go to first waypoint within error bars
+        # Go back to start of loop
+        ###############################################################
+
+        x_goal = x_points[i] - currentX # Find x of current goal point
+        y_goal = y_points[i] - currentY # Find y of current goal point
+
+        #calculate heading towards current waypoint
         goal_heading = vector_2_degrees(x_goal, y_goal)
-        current_heading = get_heading(compass)
+         
+        ## Insert code to get current theta
+        current_heading = findMyTheta() #get_heading(compass)
 
+        #This code turns the rover towards the heading
         while(isHeading(current_heading, goal_heading) == False):
             #spin clockwise. Make better in future versions
             driving(16)
@@ -179,7 +198,7 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
             print(current_heading - goal_heading)
         standby(0.5) #pause to let software catch up
         driving(13)#stop the rover motion
-
+        
         findMe() #check position again, recalculate goal
         if(x_goal == currentX and y_goal == currentY):
             posReached = True
@@ -196,11 +215,7 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
                 posReached = False
         print('Position ', i, ' Reached')
 
-
-    finishCoords = transformMatrix(goalX, goalY)
-    goalX_trans = finishCoords[0]
-    goalY_trans = finishCoords[1]
-
+    
     while(destinationReached == False):
         findMe()
         if(goalX == currentX and goalY == currentY):
@@ -215,11 +230,7 @@ def dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3):
 
         hypotenuse = calcDist(deltaX, deltaY)
         driving(1)
-    #Drive mode 3 is automatic mode
-    #auto mode
-    #read in instructions
-    #write function to calculate heading
-    #write function to check environment
+
 #==========================================================
 #Autonomous mode functions
 def transformMatrix(xCoord, yCoord):
@@ -297,6 +308,11 @@ def findMe():
     currentX = currentPos[0]
     currentY = currentPos[1]
     currentZ = currentPos[2]
+
+def findMyTheta():
+
+    currentPos = hedge.position()
+    currentTheta = currentPos[3]
 
 def checkObs():
     rangeMin = 300 #Rover allowed no closer than this (mm)
@@ -736,9 +752,9 @@ class dm3Page(tk.Frame):
         self.mainMenuBtn(controller)
         self.startBtn()
         self.inputXLabel()
-        self.inputXGoal(controller)
+        #self.inputXGoal(controller)
         self.inputYLabel()
-        self.inputYGoal(controller)
+        #self.inputYGoal(controller)
 
         #startCam()
         #dm3()
@@ -783,16 +799,17 @@ class dm3Page(tk.Frame):
         self.start.grid(column = 1, row = 3)
     # this is when auto mode starts
     def startCommand(self):
-        goalX = float(self.inputXField.get())
-        goalX2 = float(self.inputXField2.get())
-        goalX3 = float(self.inputXField3.get())
-        goalY = float(self.inputYField.get())
-        goalY2 = float(self.inputYField2.get())
-        goalY3 = float(self.inputYField3.get())
-        print(goalX, goalX2, goalX3)
-        print(goalY, goalY2, goalY3)
+        # Eliminate text field reading for now
+        # goalX = float(self.inputXField.get())
+        # goalX2 = float(self.inputXField2.get())
+        # goalX3 = float(self.inputXField3.get())
+        # goalY = float(self.inputYField.get())
+        # goalY2 = float(self.inputYField2.get())
+        # goalY3 = float(self.inputYField3.get())
+        # print(goalX, goalX2, goalX3)
+        # print(goalY, goalY2, goalY3)
         startCam()
-        dm3(goalX, goalX2, goalX3, goalY, goalY2, goalY3)
+        dm3()#goalX, goalX2, goalX3, goalY, goalY2, goalY3)
 
 #Reading GPS position. do not use for now
 #===================================================================
