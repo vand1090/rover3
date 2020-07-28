@@ -81,6 +81,7 @@ currentZ = 0
 currentTheta = 0
 destinationReached = False
 theta_transform = 0
+error_margin = 0.1
 #==========================================================
 #Functions
 
@@ -199,12 +200,14 @@ def dm3(): #goalX, goalX2, goalX3, goalY, goalY2, goalY3): ###Changed to no inpu
         standby(0.5) #pause to let software catch up
         driving(13)#stop the rover motion
         
-        findMe() #check position again, recalculate goal
-        if(x_goal == currentX and y_goal == currentY):
+        
+        loc_check = isSameLoc(findMe(), [x_goal, y_goal])
+        if(loc_check == 1):
             posReached = True
         else:
             posReached = False
 
+        #check which values are off, compensate accordingly
         while(posReached == False):
             driving(1)
             standby(0.1)
@@ -310,9 +313,23 @@ def findMe():
     currentZ = currentPos[2]
 
 def findMyTheta():
-
+    #Returns marvelmind theta value
     currentPos = hedge.position()
     currentTheta = currentPos[3]
+
+def isSameLoc(currentPos, testLoc):
+    # Checks whether the two points are within the margin of error
+    if(abs(currentPos[0] - testLoc[0])<= error_margin and abs(currentPos[1] - testLoc[1])<= error_margin):
+        return 1
+    elif(abs(currentPos[0] - testLoc[0])<= error_margin and abs(currentPos[1] - testLoc[1]) > error_margin)):
+        # y value is off 
+        return 2
+    elif(abs(currentPos[0] - testLoc[0]) > error_margin and abs(currentPos[1] - testLoc[1]) <= error_margin)):
+        # x value is off
+        return 3
+    else:
+        return 0 #both values off
+
 
 def checkObs():
     rangeMin = 300 #Rover allowed no closer than this (mm)
