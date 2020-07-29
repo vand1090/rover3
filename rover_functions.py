@@ -187,7 +187,7 @@ def dm3(): #goalX, goalX2, goalX3, goalY, goalY2, goalY3): ###Changed to no inpu
 
         #calculate heading towards current waypoint
         goal_heading = vector_2_degrees(x_goal, y_goal)
-         
+
         ## Insert code to get current theta
         current_heading = findMyTheta() #get_heading(compass)
 
@@ -199,8 +199,8 @@ def dm3(): #goalX, goalX2, goalX3, goalY, goalY2, goalY3): ###Changed to no inpu
             print(current_heading - goal_heading)
         standby(0.5) #pause to let software catch up
         driving(13)#stop the rover motion
-        
-        
+
+
         loc_check = isSameLoc(findMe(), [x_goal, y_goal])
         if(loc_check == 1):
             posReached = True
@@ -218,7 +218,7 @@ def dm3(): #goalX, goalX2, goalX3, goalY, goalY2, goalY3): ###Changed to no inpu
                 posReached = False
         print('Position ', i, ' Reached')
 
-    
+
     while(destinationReached == False):
         findMe()
         if(goalX == currentX and goalY == currentY):
@@ -321,10 +321,10 @@ def isSameLoc(currentPos, testLoc):
     # Checks whether the two points are within the margin of error
     if(abs(currentPos[0] - testLoc[0])<= error_margin and abs(currentPos[1] - testLoc[1])<= error_margin):
         return 1
-    elif(abs(currentPos[0] - testLoc[0])<= error_margin and abs(currentPos[1] - testLoc[1]) > error_margin)):
-        # y value is off 
+    elif((abs(currentPos[0] - testLoc[0])<= error_margin) and (abs(currentPos[1] - testLoc[1]) > error_margin)):
+        # y value is off
         return 2
-    elif(abs(currentPos[0] - testLoc[0]) > error_margin and abs(currentPos[1] - testLoc[1]) <= error_margin)):
+    elif((abs(currentPos[0] - testLoc[0]) > error_margin) and (abs(currentPos[1] - testLoc[1]) <= error_margin)):
         # x value is off
         return 3
     else:
